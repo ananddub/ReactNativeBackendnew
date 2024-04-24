@@ -329,4 +329,5 @@ app.get("/", (req: Request, res: Response) => {
 });
 app.listen(4003, () => {
     console.log("Server is running on port localhost:4003");
+    console.log("runing");
 });
