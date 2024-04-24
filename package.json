@@ -1,19 +1,20 @@
 {
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon server.ts",
     "run": "nodemon server.js",
     "build": "npm install && tsc",
     "start": "node server.js"
   },
   "dependencies": {
-    "@react-navigation/native": "^6.1.17",
     "@types/body-parser": "^1.19.5",
     "@types/cors": "^2.8.17",
+    "@types/multer": "^1.4.11",
     "@types/mysql": "^2.15.26",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-request": "^0.3.0",
+    "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "nodemon": "^3.1.0",
     "path": "^0.12.7"
