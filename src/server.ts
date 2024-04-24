@@ -21,14 +21,14 @@ app.use(express.text());
 
 async function sqlQuery(query: string) {
     const db = mysql.createConnection({
-        // host: "89.117.188.154",
-        // user: "u932299896_eduware",
-        // password: "Webgen@220310",
-        // database: "u932299896_sisdb",
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "sisdb",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
+        // host: "localhost",
+        // user: "root",
+        // password: "root",
+        // database: "sisdb",
     });
 
     try {
@@ -58,14 +58,14 @@ async function sqlQuery(query: string) {
 }
 async function sqlQueryStatus(query: string) {
     const db = mysql.createConnection({
-        // host: "89.117.188.154",
-        // user: "u932299896_eduware",
-        // password: "Webgen@220310",
-        // database: "u932299896_sisdb",
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "sisdb",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
+        // host: "localhost",
+        // user: "root",
+        // password: "root",
+        // database: "sisdb",
     });
 
     try {
@@ -103,14 +103,14 @@ async function sqlQueryStatus(query: string) {
 
 async function sqlQueryUpdate(query: string) {
     const db = mysql.createConnection({
-        // host: "89.117.188.154",
-        // user: "u932299896_eduware",
-        // password: "Webgen@220310",
-        // database: "u932299896_sisdb",
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "sisdb",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
+        // host: "localhost",
+        // user: "root",
+        // password: "root",
+        // database: "sisdb",
     });
 
     try {

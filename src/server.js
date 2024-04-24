@@ -59,14 +59,14 @@ function sqlQuery(query) {
             switch (_a.label) {
                 case 0:
                     db = mysql.createConnection({
-                        // host: "89.117.188.154",
-                        // user: "u932299896_eduware",
-                        // password: "Webgen@220310",
-                        // database: "u932299896_sisdb",
-                        host: "localhost",
-                        user: "root",
-                        password: "root",
-                        database: "sisdb",
+                        host: "89.117.188.154",
+                        user: "u932299896_eduware",
+                        password: "Webgen@220310",
+                        database: "u932299896_sisdb",
+                        // host: "localhost",
+                        // user: "root",
+                        // password: "root",
+                        // database: "sisdb",
                     });
                     _a.label = 1;
                 case 1:
@@ -111,14 +111,14 @@ function sqlQueryStatus(query) {
             switch (_a.label) {
                 case 0:
                     db = mysql.createConnection({
-                        // host: "89.117.188.154",
-                        // user: "u932299896_eduware",
-                        // password: "Webgen@220310",
-                        // database: "u932299896_sisdb",
-                        host: "localhost",
-                        user: "root",
-                        password: "root",
-                        database: "sisdb",
+                        host: "89.117.188.154",
+                        user: "u932299896_eduware",
+                        password: "Webgen@220310",
+                        database: "u932299896_sisdb",
+                        // host: "localhost",
+                        // user: "root",
+                        // password: "root",
+                        // database: "sisdb",
                     });
                     _a.label = 1;
                 case 1:
@@ -177,14 +177,14 @@ function sqlQueryUpdate(query) {
             switch (_a.label) {
                 case 0:
                     db = mysql.createConnection({
-                        // host: "89.117.188.154",
-                        // user: "u932299896_eduware",
-                        // password: "Webgen@220310",
-                        // database: "u932299896_sisdb",
-                        host: "localhost",
-                        user: "root",
-                        password: "root",
-                        database: "sisdb",
+                        host: "89.117.188.154",
+                        user: "u932299896_eduware",
+                        password: "Webgen@220310",
+                        database: "u932299896_sisdb",
+                        // host: "localhost",
+                        // user: "root",
+                        // password: "root",
+                        // database: "sisdb",
                     });
                     _a.label = 1;
                 case 1:
