@@ -15,7 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const mysql_1 = __importDefault(require("mysql"));
+const multer_1 = __importDefault(require("multer"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: "*",
@@ -23,19 +26,19 @@ app.use((0, cors_1.default)({
     methods: ["GET", "POST", "PUT", "DELETE", "OPTION"],
 }));
 app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use(body_parser_1.default.json());
+app.use(express_1.default.json());
 app.use(express_1.default.text());
 function sqlQuery(query) {
     return __awaiter(this, void 0, void 0, function* () {
         const db = mysql_1.default.createConnection({
-            host: "89.117.188.154",
-            user: "u932299896_eduware",
-            password: "Webgen@220310",
-            database: "u932299896_sisdb",
-            // host: "localhost",
-            // user: "root",
-            // password: "root",
-            // database: "sisdb",
+            // host: "89.117.188.154",
+            // user: "u932299896_eduware",
+            // password: "Webgen@220310",
+            // database: "u932299896_sisdb",
+            host: "localhost",
+            user: "root",
+            password: "root",
+            database: "sisdb",
         });
         try {
             yield new Promise((resolve, reject) => {
@@ -68,14 +71,14 @@ function sqlQuery(query) {
 function sqlQueryStatus(query) {
     return __awaiter(this, void 0, void 0, function* () {
         const db = mysql_1.default.createConnection({
-            host: "89.117.188.154",
-            user: "u932299896_eduware",
-            password: "Webgen@220310",
-            database: "u932299896_sisdb",
-            // host: "localhost",
-            // user: "root",
-            // password: "root",
-            // database: "sisdb",
+            // host: "89.117.188.154",
+            // user: "u932299896_eduware",
+            // password: "Webgen@220310",
+            // database: "u932299896_sisdb",
+            host: "localhost",
+            user: "root",
+            password: "root",
+            database: "sisdb",
         });
         try {
             yield new Promise((resolve, reject) => {
@@ -114,10 +117,66 @@ function sqlQueryStatus(query) {
             console.error("Error:", err);
             db.end();
             console.log("conection end");
+            return { status: false, data: [] };
+        }
+    });
+}
+function sqlQueryUpdate(query) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const db = mysql_1.default.createConnection({
+            // host: "89.117.188.154",
+            // user: "u932299896_eduware",
+            // password: "Webgen@220310",
+            // database: "u932299896_sisdb",
+            host: "localhost",
+            user: "root",
+            password: "root",
+            database: "sisdb",
+        });
+        try {
+            yield new Promise((resolve, reject) => {
+                db.connect((err) => {
+                    if (err)
+                        reject(err);
+                    resolve("done");
+                    console.log("Connected to database");
+                });
+            });
+            const value = yield new Promise((resolve, reject) => {
+                db.query(query, (err, result) => {
+                    try {
+                        if (err) {
+                            console.log(err);
+                            reject(false);
+                        }
+                        resolve(true);
+                    }
+                    catch (err) {
+                        resolve(false);
+                    }
+                });
+            });
+            db.end();
+            console.log("conection end");
+            console.log("result of sql :", value);
+            return { status: value };
+        }
+        catch (err) {
+            console.error("Error:", err);
+            db.end();
+            console.log("conection end");
             return { status: false };
         }
     });
 }
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");
+    },
+    filename: (req, file, cb) => __awaiter(void 0, void 0, void 0, function* () {
+        cb(null, file.originalname);
+    }),
+});
 function paymentDetails(admno, session) {
     return __awaiter(this, void 0, void 0, function* () {
         const [admission, transportFee, stdTransDetail, hostelFee, stdFeeMaster, monthFee, stdMonthFeeDetail,] = yield Promise.all([
@@ -152,37 +211,100 @@ function paymentDetails(admno, session) {
         return objects;
     });
 }
-app.get("/phoneVerfication", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+(req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const phone = (_a = req.query) === null || _a === void 0 ? void 0 : _a.phone;
     const query = `SELECT * FROM tbl_admission where session="2023-2024" and  active=1 and fmob='${phone}'`;
     const data = yield sqlQueryStatus(query);
     console.log(data);
     res.send({ status: data });
+});
+const upload = (0, multer_1.default)({ storage: storage });
+app.put("/imageupload", upload.single("image"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("uploaded sucess fully");
+    res.send({ status: "success" });
+}));
+app.put("/profileupdate", upload.single("image"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { admno, name, fname, mname, pdist } = req.body;
+    const update = `UPDATE tbl_admission SET 
+            name  = '${name}',
+            fname = '${fname}',
+            mname = '${mname}', 
+            pdist = '${pdist}'
+            WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+    const data = yield sqlQueryUpdate(update);
+    console.log([name, fname, mname, pdist, admno]);
+    console.log("parsed data:", data);
+    res.send(data);
+}));
+app.get("/phoneVerfication", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        const phone = (_b = req.query) === null || _b === void 0 ? void 0 : _b.phone;
+        const query = `SELECT * FROM tbl_admission where session="2023-2024" and  active=1 and fmob='${phone}'`;
+        const data = yield sqlQueryStatus(query);
+        const image = new Array();
+        if (data.status === true)
+            for (let value of data.data) {
+                try {
+                    const imagePath = path_1.default.join(__dirname, `uploads/${value.admno}.jpg`);
+                    const img = fs_1.default.readFileSync(imagePath, "base64");
+                    const obj = {
+                        type: "image/jpg",
+                        name: `${value.admno}.jpg`,
+                        data: img,
+                    };
+                    image.push(obj);
+                }
+                catch (err) {
+                    const obj = {
+                        type: "",
+                        name: "",
+                        data: "",
+                    };
+                    image.push(obj);
+                }
+            }
+        console.log(data);
+        res.send({ status: data, image: image });
+    }
+    catch (err) {
+        res.send({ status: false, image: null });
+    }
 }));
 app.get("/paymentDetails", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
-    const admno = (_b = req.query) === null || _b === void 0 ? void 0 : _b.admno;
-    const data = yield paymentDetails(`${admno}`, `2023-2024`);
-    res.send({ status: true, data: data });
-}));
-app.get("/BasicDetails", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     const admno = (_c = req.query) === null || _c === void 0 ? void 0 : _c.admno;
+    const data = yield paymentDetails(`${admno}`, `2023-2024`);
+    try {
+        const imagePath = path_1.default.join(__dirname, `uploads/${admno}.jpg`);
+        const image = fs_1.default.readFileSync(imagePath, "base64");
+        res.contentType("multipart/mixed");
+        res.send({ status: true, data: data, image: image });
+    }
+    catch (err) {
+        res.send({ status: data, data: data, image: null });
+    }
+}));
+app.get("/BasicDetails", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const admno = (_d = req.query) === null || _d === void 0 ? void 0 : _d.admno;
     console.log("admno numer :", admno);
     const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
     const data = yield sqlQueryStatus(query);
-    console.log(data);
-    res.send({ status: data });
+    try {
+        const imagePath = path_1.default.join(__dirname, `uploads/${admno}.jpg`);
+        const image = fs_1.default.readFileSync(imagePath, "base64");
+        res.contentType("multipart/mixed");
+        res.send({ status: data, image: image });
+    }
+    catch (err) {
+        res.send({ status: data, image: null });
+    }
 }));
 app.get("/", (req, res) => {
-
-    // const imagePath = path.join(__dirname, 'krishna.jpg');
-    // const image = fs.readFileSync(imagePath);
-    // res.contentType('image/jpeg');
-    res.send(image);
-    // res.send("<h1>Welcome to Eduware Android</h1>");
+    res.send("<h1>Welcome to Eduware Android</h1>");
 });
 app.listen(4003, () => {
-    console.log("Server is running on port localhost:0.0.0.0,4003");
+    console.log("Server is running on port localhost:4003");
 });

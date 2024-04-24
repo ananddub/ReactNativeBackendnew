@@ -1,8 +1,9 @@
 {
   "scripts": {
     "dev": "nodemon server.js",
-    "run": "nodemon server.js"
-
+    "run": "nodemon server.js",
+    "build": "npm install && tsc",
+    "start": "node server.js"
   },
   "dependencies": {
     "@react-navigation/native": "^6.1.17",
