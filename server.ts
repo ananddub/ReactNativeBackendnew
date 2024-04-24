@@ -1,10 +1,11 @@
-import express, { Express, Request, Response } from "express";
-import Cors from "cors";
-import mysql from "mysql";
-import multer from "multer";
-import bodyParser from "body-parser";
-import fs from "fs";
-import path from "path";
+import * as express from "express";
+import { Express, Request, Response } from "express";
+import * as Cors from "cors";
+import * as mysql from "mysql";
+import * as multer from "multer";
+import * as bodyParser from "body-parser";
+import * as fs from "fs";
+import * as path from "path";
 import { useNavigation } from "@react-navigation/native";
 const app = express();
 app.use(
