@@ -176,9 +176,10 @@ app.get("/BasicDetails", (req, res) => __awaiter(void 0, void 0, void 0, functio
     res.send({ status: data });
 }));
 app.get("/", (req, res) => {
-    const imagePath = path.join(__dirname, 'krishna.jpg');
-    const image = fs.readFileSync(imagePath);
-    res.contentType('image/jpeg');
+
+    // const imagePath = path.join(__dirname, 'krishna.jpg');
+    // const image = fs.readFileSync(imagePath);
+    // res.contentType('image/jpeg');
     res.send(image);
     // res.send("<h1>Welcome to Eduware Android</h1>");
 });

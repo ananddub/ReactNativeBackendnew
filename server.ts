@@ -174,7 +174,6 @@ app.get("/paymentDetails", async (req: Request, res: Response) => {
 app.get("/BasicDetails", async (req: Request, res: Response) => {
     const admno = req.query?.admno;
     console.log("admno numer :", admno);
-
     const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
     const data = await sqlQueryStatus(query);
     console.log(data);

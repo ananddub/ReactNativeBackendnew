@@ -96,7 +96,7 @@ async function sqlQueryStatus(query: string) {
         console.error("Error:", err);
         db.end();
         console.log("conection end");
-        return { status: false };
+        return { status: false, data: [] };
     }
 }
 
@@ -231,31 +231,81 @@ app.put(
     }
 );
 
-app.put("/profileupdate", async (req: Request, res: Response) => {
-    const { admno, name, fname, mname, pdist } = req.body;
-    const update = `UPDATE tbl_admission SET 
+app.put(
+    "/profileupdate",
+    upload.single("image"),
+    async (req: Request, res: Response) => {
+        const { admno, name, fname, mname, pdist } = req.body;
+        const update = `UPDATE tbl_admission SET 
             name  = '${name}',
             fname = '${fname}',
             mname = '${mname}', 
             pdist = '${pdist}'
-    WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
-    const data = await sqlQueryUpdate(update);
-    console.log([name, fname, mname, pdist, admno]);
-    console.log("parsed data:", data);
-    res.send(data);
-});
+            WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+        const data = await sqlQueryUpdate(update);
+        console.log([name, fname, mname, pdist, admno]);
+        console.log("parsed data:", data);
+        res.send(data);
+    }
+);
 app.get("/phoneVerfication", async (req: Request, res: Response) => {
-    const phone = req.query?.phone;
-    const query = `SELECT * FROM tbl_admission where session="2023-2024" and  active=1 and fmob='${phone}'`;
-    const data = await sqlQueryStatus(query);
-    console.log(data);
-    res.send({ status: data });
+    try {
+        const phone = req.query?.phone;
+        const query = `SELECT * FROM tbl_admission where session="2023-2024" and  active=1 and fmob='${phone}'`;
+        const data: {
+            status: boolean;
+            data: any;
+        } = await sqlQueryStatus(query);
+        const image: {
+            type: string;
+            name: string;
+            data: string;
+        }[] = new Array();
+        if (data.status === true)
+            for (let value of data.data) {
+                try {
+                    const imagePath = path.join(
+                        __dirname,
+                        `uploads/${value.admno}.jpg`
+                    );
+                    const img = fs.readFileSync(imagePath, "base64");
+                    const obj: {
+                        type: string;
+                        name: string;
+                        data: string;
+                    } = {
+                        type: "image/jpg",
+                        name: `${value.admno}.jpg`,
+                        data: img,
+                    };
+                    image.push(obj);
+                } catch (err) {
+                    const obj = {
+                        type: "",
+                        name: "",
+                        data: "",
+                    };
+                    image.push(obj);
+                }
+            }
+        console.log(data);
+        res.send({ status: data, image: image });
+    } catch (err) {
+        res.send({ status: false, image: null });
+    }
 });
 
 app.get("/paymentDetails", async (req: Request, res: Response) => {
     const admno = req.query?.admno;
     const data = await paymentDetails(`${admno}`, `2023-2024`);
-    res.send({ status: true, data: data });
+    try {
+        const imagePath = path.join(__dirname, `uploads/${admno}.jpg`);
+        const image = fs.readFileSync(imagePath, "base64");
+        res.contentType("multipart/mixed");
+        res.send({ status: true, data: data, image: image });
+    } catch (err) {
+        res.send({ status: data, data: data, image: null });
+    }
 });
 
 app.get("/BasicDetails", async (req: Request, res: Response) => {
@@ -263,16 +313,18 @@ app.get("/BasicDetails", async (req: Request, res: Response) => {
     console.log("admno numer :", admno);
     const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
     const data = await sqlQueryStatus(query);
-    console.log(data);
-    res.send({ status: data });
+    try {
+        const imagePath = path.join(__dirname, `uploads/${admno}.jpg`);
+        const image = fs.readFileSync(imagePath, "base64");
+        res.contentType("multipart/mixed");
+        res.send({ status: data, image: image });
+    } catch (err) {
+        res.send({ status: data, image: null });
+    }
 });
+
 app.get("/", (req: Request, res: Response) => {
-    const imagePath = path.join(__dirname, "krishna.jpg");
-    const image = fs.readFileSync(imagePath);
-    res.contentType("image/jpeg");
-    console.log(image);
-    res.send(image);
-    // res.send("<h1>Welcome to Eduware Android</h1>");
+    res.send("<h1>Welcome to Eduware Android</h1>");
 });
 app.listen(4003, () => {
     console.log("Server is running on port localhost:4003");
