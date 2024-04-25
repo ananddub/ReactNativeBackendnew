@@ -236,16 +236,24 @@ app.put(
     "/profileupdate",
     upload.single("image"),
     async (req: Request, res: Response) => {
-        const { admno, name, fname, mname, pdist } = req.body;
+        const { admno, imagename, name, fname, mname, pdist } = req.body;
         const update = `UPDATE tbl_admission SET 
-            name  = '${name}',
-            fname = '${fname}',
-            mname = '${mname}', 
-            pdist = '${pdist}'
-            WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+                    name  = '${name}',
+                    fname = '${fname}',
+                    mname = '${mname}', 
+                    pdist = '${pdist}'
+                    ${
+                        imagename !== undefined
+                            ? `, imagepath = '${imagename}'`
+                            : ""
+                    }
+                    WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+
         const data = await sqlQueryUpdate(update);
+        console.clear();
         console.log([name, fname, mname, pdist, admno]);
-        console.log("parsed data:", data);
+        // console.log("parsed data:", data);
+        console.log("updated sucess fully ", data, imagename, typeof imagename);
         res.send(data);
     }
 );
@@ -267,7 +275,7 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                 try {
                     const imagePath = path.join(
                         __dirname,
-                        `uploads/${value.admno}.jpg`
+                        `uploads/${value.imagepath}`
                     );
                     const img = fs.readFileSync(imagePath, "base64");
                     const obj: {
@@ -275,10 +283,11 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                         name: string;
                         data: string;
                     } = {
-                        type: "image/jpg",
-                        name: `${value.admno}.jpg`,
+                        type: "image/jpeg",
+                        name: `${value.imagepath}`,
                         data: img,
                     };
+                    console.log("sucess");
                     image.push(obj);
                 } catch (err) {
                     const obj = {
@@ -289,7 +298,7 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                     image.push(obj);
                 }
             }
-        console.log(data);
+        // console.log(data);
         res.send({ status: data, image: image });
     } catch (err) {
         res.send({ status: false, image: null });
@@ -300,9 +309,12 @@ app.get("/paymentDetails", async (req: Request, res: Response) => {
     const admno = req.query?.admno;
     const data = await paymentDetails(`${admno}`, `2023-2024`);
     try {
-        const imagePath = path.join(__dirname, `uploads/${admno}.jpg`);
+        const imagePath = path.join(
+            __dirname,
+            `uploads/${data.tbl_admission.imagepath}`
+        );
         const image = fs.readFileSync(imagePath, "base64");
-        res.contentType("multipart/mixed");
+        res.contentType("content/json");
         res.send({ status: true, data: data, image: image });
     } catch (err) {
         res.send({ status: data, data: data, image: null });
@@ -313,9 +325,13 @@ app.get("/BasicDetails", async (req: Request, res: Response) => {
     const admno = req.query?.admno;
     console.log("admno numer :", admno);
     const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
-    const data = await sqlQueryStatus(query);
+    const data: any = await sqlQueryStatus(query);
+    console.log("basic details :", data);
     try {
-        const imagePath = path.join(__dirname, `uploads/${admno}.jpg`);
+        const imagePath = path.join(
+            __dirname,
+            `uploads/${data?.data.imagepath}`
+        );
         const image = fs.readFileSync(imagePath, "base64");
         res.contentType("multipart/mixed");
         res.send({ status: data, image: image });
