@@ -222,16 +222,21 @@ app.put("/imageupload", upload.single("image"), (req, res) => __awaiter(void 0, 
     res.send({ status: "success" });
 }));
 app.put("/profileupdate", upload.single("image"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { admno, name, fname, mname, pdist } = req.body;
+    const { admno, imagename, name, fname, mname, pdist } = req.body;
     const update = `UPDATE tbl_admission SET 
-            name  = '${name}',
-            fname = '${fname}',
-            mname = '${mname}', 
-            pdist = '${pdist}'
-            WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+                    name  = '${name}',
+                    fname = '${fname}',
+                    mname = '${mname}', 
+                    pdist = '${pdist}'
+                    ${imagename !== undefined
+        ? `, imagepath = '${imagename}'`
+        : ""}
+                    WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
     const data = yield sqlQueryUpdate(update);
+    console.clear();
     console.log([name, fname, mname, pdist, admno]);
-    console.log("parsed data:", data);
+    // console.log("parsed data:", data);
+    console.log("updated sucess fully ", data, imagename, typeof imagename);
     res.send(data);
 }));
 app.get("/phoneVerfication", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -244,13 +249,14 @@ app.get("/phoneVerfication", (req, res) => __awaiter(void 0, void 0, void 0, fun
         if (data.status === true)
             for (let value of data.data) {
                 try {
-                    const imagePath = path.join(__dirname, `uploads/${value.admno}.jpg`);
+                    const imagePath = path.join(__dirname, `uploads/${value.imagepath}`);
                     const img = fs.readFileSync(imagePath, "base64");
                     const obj = {
-                        type: "image/jpg",
-                        name: `${value.admno}.jpg`,
+                        type: "image/jpeg",
+                        name: `${value.imagepath}`,
                         data: img,
                     };
+                    console.log("sucess");
                     image.push(obj);
                 }
                 catch (err) {
@@ -262,7 +268,7 @@ app.get("/phoneVerfication", (req, res) => __awaiter(void 0, void 0, void 0, fun
                     image.push(obj);
                 }
             }
-        console.log(data);
+        // console.log(data);
         res.send({ status: data, image: image });
     }
     catch (err) {
@@ -274,9 +280,9 @@ app.get("/paymentDetails", (req, res) => __awaiter(void 0, void 0, void 0, funct
     const admno = (_c = req.query) === null || _c === void 0 ? void 0 : _c.admno;
     const data = yield paymentDetails(`${admno}`, `2023-2024`);
     try {
-        const imagePath = path.join(__dirname, `uploads/${admno}.jpg`);
+        const imagePath = path.join(__dirname, `uploads/${data.tbl_admission.imagepath}`);
         const image = fs.readFileSync(imagePath, "base64");
-        res.contentType("multipart/mixed");
+        res.contentType("content/json");
         res.send({ status: true, data: data, image: image });
     }
     catch (err) {
@@ -289,8 +295,9 @@ app.get("/BasicDetails", (req, res) => __awaiter(void 0, void 0, void 0, functio
     console.log("admno numer :", admno);
     const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
     const data = yield sqlQueryStatus(query);
+    console.log("basic details :", data);
     try {
-        const imagePath = path.join(__dirname, `uploads/${admno}.jpg`);
+        const imagePath = path.join(__dirname, `uploads/${data === null || data === void 0 ? void 0 : data.data.imagepath}`);
         const image = fs.readFileSync(imagePath, "base64");
         res.contentType("multipart/mixed");
         res.send({ status: data, image: image });

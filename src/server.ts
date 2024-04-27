@@ -6,7 +6,6 @@ import * as multer from "multer";
 import * as bodyParser from "body-parser";
 import * as fs from "fs";
 import * as path from "path";
-import { useNavigation } from "@react-navigation/native";
 const app = express();
 app.use(
     Cors({
