@@ -209,7 +209,7 @@ io.on("connection", (socket) => {
     });
 });
 
-
-httpServer.listen(443,'0.0.0.0', () => {
+const PORT = process.env.PORT || 443;
+httpServer.listen(PORT, () => {
     console.log("server is running on port localhost:4000");
 });
