@@ -3,15 +3,15 @@
   node_bundler = "esbuild"
 [[redirects]]
   from = "/socket.io/*"
-  to = "http://localhost:4003/socket.io/:splat"
+  to = "/.netlify/functions/socket.io/:splat"
   status = 200
 
 [[redirects]]
   from = "/api/*"
-  to = "http://localhost:4000/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
 
 [[redirects]]
   from = "/*"
-  to = "http://localhost:4000/:splat"
+  to = "/.netlify/functions/:splat"
   status = 200
