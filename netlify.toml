@@ -1,11 +1,11 @@
 [functions]
-  external_node_modules = ["express",socket.io]
+  external_node_modules = ["express","socket.io"]
   node_bundler = "esbuild"
 
 [[redirects]]
   force = true
   from = "/socket.io/*"
-  to = "/.netlify/functions/socket/:splat"
+  to = "/.netlify/functions/socket.io/:splat"
   status = 200
 
 [[redirects]]
