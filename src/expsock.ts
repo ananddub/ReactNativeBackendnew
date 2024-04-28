@@ -2,7 +2,8 @@ import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import * as mysql from "mysql";
 import { response } from "express";
-const httpServer = createServer();
+import * as express from "express";
+const httpServer = createServer(express());
 const io = new Server(httpServer, {
     cors: {
 		origin: "*",

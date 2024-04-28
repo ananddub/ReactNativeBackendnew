@@ -39,7 +39,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("http");
 var socket_io_1 = require("socket.io");
 var mysql = require("mysql");
-var httpServer = (0, http_1.createServer)();
+var express = require("express");
+var httpServer = (0, http_1.createServer)(express());
 var io = new socket_io_1.Server(httpServer, {
     cors: {
         origin: "*",
@@ -294,5 +295,5 @@ io.engine.on("connection_error", function (err) {
 });
 // const PORT = process.env.PORT || 443;
 httpServer.listen(3000, function () {
-    console.log("server is running on port localhost:3000");
+    console.log("server is running on port localhost:434");
 });
