@@ -1,3 +1,7 @@
+[functions]
+  external_node_modules = ["express","socket]
+  node_bundler = "esbuild"
+
 [[redirects]]
   from = "/socket.io/*"
   to = "http://localhost:4003/socket.io/:splat"
