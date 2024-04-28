@@ -1,7 +1,18 @@
-[build]
-    functions = "functions"
+[functions]
+  external_node_modules = ["express","socket"]
+  node_bundler = "esbuild"
 
 [[redirects]]
-    from = "/api/*"
-    to = "/.netlify/functions/:splat"
-    status = 200
+  from = "/socket.io/*"
+  to = "http://localhost:4003/socket.io/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://localhost:4000/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "http://localhost:4000/:splat"
+  status = 200
