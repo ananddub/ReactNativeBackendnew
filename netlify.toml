@@ -5,7 +5,7 @@
 [[redirects]]
   force = true
   from = "/socket.io/*"
-  to = "/.netlify/functions/socket.io/:splat"
+  to = "/.netlify/functions/socket/:splat"
   status = 200
 
 [[redirects]]
