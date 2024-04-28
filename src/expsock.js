@@ -286,7 +286,7 @@ io.on("connection", function (socket) {
         console.log("A user disconnected", dbActive);
     });
 });
-var PORT = process.env.PORT || 443;
-httpServer.listen(PORT, function () {
+// const PORT = process.env.PORT || 443;
+httpServer.listen(443, function () {
     console.log("server is running on port localhost:4000");
 });
