@@ -143,7 +143,7 @@ io.engine.on("connection_error", function (err) {
 });
 var PORT = process.env.PORT || 443;
 httpServer.listen(PORT,"0.0.0.0", function () {
-    console.log("server is running on port localhost:434");
+    console.log("server is running on port localhost:",PORT);
 });
 function getLength(admno) {
     return __awaiter(this, void 0, void 0, function () {
