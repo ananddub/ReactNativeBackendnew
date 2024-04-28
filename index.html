@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Image from Server Response</title>
+</head>
+<body>
+    <img src="" alt="image">
+    <script>
+        function displayImage(data) {
+            const img = document.querySelector('img');
+            console.log(data.image);
+            img.src = `data:image/jpeg;base64,${data.image}`;
+            img.alt = 'Image';
+            imageContainer.appendChild(img);
+        }
+        async function fetchData(admno) {
+            try {
+                const response = await fetch(`http://192.168.1.6:4003/BasicDetails?admno=ASIS192000027`);
+                const data = await response.json();
+                console.log(data)
+                displayImage(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Call fetchData function when the page loads
+        window.onload = function() {
+            const admno = '123'; // Provide the admno here
+            fetchData(admno);
+        };
+    </script>
+</body>
+</html>

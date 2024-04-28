@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "nodemon server.ts",
     "run": "nodemon server.js",
-    "build": "netlify deploy --prod",
+    "build": "npm install && tsc",
     "start": "node server.js"
   },
   "dependencies": {
@@ -13,6 +13,7 @@
     "@types/mysql": "^2.15.26",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-request": "^0.3.0",
     "multer": "^1.4.5-lts.1",
@@ -23,5 +24,6 @@
     "path": "^0.12.7",
     "serverless-http": "^3.2.0",
     "socket.io": "^4.7.5"
-  }
+  },
+  "devDependencies": {}
 }
