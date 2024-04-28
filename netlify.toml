@@ -2,14 +2,6 @@
     functions = "functions"
 
 [[redirects]]
-  force = true
-  from = "/socket.io/*"
-  to = "/.netlify/functions/socket.io/:splat"
-  status = 200
-
-[[redirects]]
-  force = true
-  from = "/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+    from = "/api/*"
+    to = "/.netlify/functions/:splat"
+    status = 200
