@@ -429,9 +429,9 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
 app.get("/", function (req, res) {
     res.send("<h1>Welcome to Eduware Android</h1>");
 });
-var EPORT = process.env.PORT || 4000;
+var EPORT = process.env.PORT || 3000;
 app.listen(EPORT, function () {
-    console.log("Server is running on port localhost:4003");
+    console.log("Server is running on port localhost:", EPORT);
 });
 var http_1 = require("http");
 var socket_io_1 = require("socket.io");
@@ -556,7 +556,7 @@ io.on("connection", function (socket) {
         console.log("A user disconnected", dbActive);
     });
 });
-var SPORT = process.env.SPORT || 4003;
+var SPORT = process.env.SPORT || 443;
 httpServer.listen(SPORT, function () {
-    console.log("server is running on port localhost:4000");
+    console.log("server is running on port localhost:", SPORT);
 });
