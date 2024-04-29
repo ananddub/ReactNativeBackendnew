@@ -438,7 +438,7 @@ var socket_io_1 = require("socket.io");
 var httpServer = (0, http_1.createServer)();
 var io = new socket_io_1.Server(httpServer, {
     cors: {
-        origin: ["*"],
+        origin: "*",
         credentials: true,
     }
 });
@@ -556,7 +556,7 @@ io.on("connection", function (socket) {
         console.log("A user disconnected", dbActive);
     });
 });
-var SPORT = process.env.SPORT || 443;
-httpServer.listen(SPORT, function () {
-    console.log("server is running on port localhost:", SPORT);
+var PORT = process.env.PORT || 443;
+httpServer.listen(PORT, function () {
+    console.log("Socket is running on port localhost:", PORT);
 });

@@ -474,7 +474,7 @@ io.on("connection", (socket) => {
     });
 });
 
-const SPORT = process.env.SPORT||443;
-httpServer.listen(SPORT, () => {
-    console.log("server is running on port localhost:",SPORT);
+const PORT = process.env.PORT||443;
+httpServer.listen(PORT, () => {
+    console.log("Socket is running on port localhost:",PORT);
 });
