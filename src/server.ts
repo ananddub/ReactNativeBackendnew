@@ -344,7 +344,7 @@ app.get("/", (req: Request, res: Response) => {
     res.send("<h1>Welcome to Eduware Android</h1>");
 });
 
-const EPORT = process.env.PORT || 3000;
+const EPORT = process.env.SPORT || 3000;
 app.listen(EPORT, () => {
     console.log("Server is running on port localhost:", EPORT);
 });
