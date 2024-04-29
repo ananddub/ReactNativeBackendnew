@@ -44,6 +44,7 @@ var httpServer = (0, http_1.createServer)(express());
 var io = new socket_io_1.Server(httpServer, {
     cors: {
         origin: "*",
+        credentials: true,
     }
 });
 var dbActive = [];
@@ -142,8 +143,8 @@ io.engine.on("connection_error", function (err) {
     console.log(err.context); // some additional error context
 });
 var PORT = process.env.PORT || 443;
-httpServer.listen(PORT,"0.0.0.0", function () {
-    console.log("socket is running on port localhost:",PORT);
+httpServer.listen(PORT, function () {
+    console.log("server is running on port localhost:434");
 });
 function getLength(admno) {
     return __awaiter(this, void 0, void 0, function () {

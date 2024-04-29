@@ -7,6 +7,7 @@ const httpServer = createServer(express());
 const io = new Server(httpServer, {
     cors: {
 		origin: "*",
+        credentials: true,
 	}
 });
 interface sdb {
