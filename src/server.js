@@ -457,8 +457,8 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
 app.get("/", function (req, res) {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
-var EPORT = process.env.SPORT || 3000;
-app.listen(EPORT, function () {
+var EPORT = parseInt(process.env.SPORT) || 3000;
+app.listen(EPORT, '0.0.0.0', function () {
     console.log("Server is running on port localhost:", EPORT);
 });
 var http_1 = require("http");

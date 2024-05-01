@@ -368,8 +368,8 @@ app.get("/", (req: Request, res: Response) => {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
 
-const EPORT = process.env.SPORT || 3000;
-app.listen(EPORT, () => {
+const EPORT:number = parseInt(process.env.SPORT!) || 3000;
+app.listen(EPORT,'0.0.0.0', () => {
     console.log("Server is running on port localhost:", EPORT);
 });
 
