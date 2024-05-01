@@ -43,7 +43,6 @@ var multer = require("multer");
 var bodyParser = require("body-parser");
 var fs = require("fs");
 var path = require("path");
-// 
 var app = express();
 app.use(Cors({
     origin: ["*"],
