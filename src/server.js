@@ -45,7 +45,7 @@ var fs = require("fs");
 var path = require("path");
 var app = express();
 app.use(Cors({
-    origin: ["*"],
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTION"],
 }));

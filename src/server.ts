@@ -10,7 +10,7 @@ import * as path from "path";
 const app = express();
 app.use(
     Cors({
-        origin: ["*"],
+        origin: "*",
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTION"],
     })
@@ -130,6 +130,7 @@ async function sqlQueryUpdate(query: string) {
                     }
                     resolve(true);
                 } catch (err) {
+                    console.log(err)
                     resolve(false);
                 }
             });
@@ -227,8 +228,12 @@ app.put(
     "/imageupload",
     upload.single("image"),
     async (req: Request, res: Response) => {
-        console.log("uploaded sucess fully");
-        res.send({ status: "success" });
+        try{
+            console.log("uploaded sucess fully");
+            res.status(200).send({ status: "success" });
+        }catch(err:any){
+            res.status(400).send(err.message);
+        }
     }
 );
 
@@ -236,25 +241,29 @@ app.put(
     "/profileupdate",
     upload.single("image"),
     async (req: Request, res: Response) => {
-        const { admno, imagename, name, fname, mname, pdist } = req.body;
-        const update = `UPDATE tbl_admission SET 
-                    name  = '${name}',
-                    fname = '${fname}',
-                    mname = '${mname}', 
-                    pdist = '${pdist}'
-                    ${
-                        imagename !== undefined
-                            ? `, imagepath = '${imagename}'`
-                            : ""
-                    }
-                    WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
-
-        const data = await sqlQueryUpdate(update);
-        console.clear();
-        console.log([name, fname, mname, pdist, admno]);
-        // console.log("parsed data:", data);
-        console.log("updated sucess fully ", data, imagename, typeof imagename);
-        res.send(data);
+        try{
+            const { admno, imagename, name, fname, mname, pdist } = req.body;
+            const update = `UPDATE tbl_admission SET 
+                        name  = '${name}',
+                        fname = '${fname}',
+                        mname = '${mname}', 
+                        pdist = '${pdist}'
+                        ${
+                            imagename !== undefined
+                                ? `, imagepath = '${imagename}'`
+                                : ""
+                        }
+                        WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+    
+            const data = await sqlQueryUpdate(update);
+            console.clear();
+            console.log([name, fname, mname, pdist, admno]);
+            // console.log("parsed data:", data);
+            console.log("updated sucess fully ", data, imagename, typeof imagename);
+            res.status(200).send(data);
+        }catch(err:any){
+            res.status(400).send(err.message);
+        }
     }
 );
 app.get("/phoneVerfication", async (req: Request, res: Response) => {
@@ -271,6 +280,7 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
             data: string;
         }[] = new Array();
         if (data.status === true)
+            
             for (let value of data.data) {
                 try {
                     const imagePath = path.join(
@@ -299,49 +309,58 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                 }
             }
         // console.log(data);
-        res.send({ status: data, image: image });
+        res.status(200).send({ status: data, image: image });
     } catch (err) {
-        res.send({ status: false, image: null });
+        res.status(400).send({ status: false, image: null });
     }
 });
 
 app.get("/paymentDetails", async (req: Request, res: Response) => {
-    const admno = req.query?.admno;
-    const data = await paymentDetails(`${admno}`, `2023-2024`);
-    try {
-        const imagePath = path.join(
-            __dirname,
-            `uploads/${data.tbl_admission.imagepath}`
-        );
-        const image = fs.readFileSync(imagePath, "base64");
-        res.contentType("content/json");
-        res.send({ status: true, data: data, image: image });
-    } catch (err) {
-        res.send({ status: data, data: data, image: null });
+    try{
+        const admno = req.query?.admno;
+        const data = await paymentDetails(`${admno}`, `2023-2024`);
+        try {
+            const imagePath = path.join(
+                __dirname,
+                `uploads/${data.tbl_admission.imagepath}`
+            );
+            const image = fs.readFileSync(imagePath, "base64");
+            res.contentType("content/json");
+            res.status(200).send({ status: true, data: data, image: image });
+        } catch (err) {
+            res.status(200).send({ status: data, data: data, image: null });
+        }
+    }catch(err:any){
+        res.status(400).send(err.message);
+
     }
 });
 
 app.get("/BasicDetails", async (req: Request, res: Response) => {
-    const admno = req.query?.admno;
-    console.log("admno numer :", admno);
-    const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
-    const data: any = await sqlQueryStatus(query);
-    console.log("basic details :", data);
-    try {
-        const imagePath = path.join(
-            __dirname,
-            `uploads/${data?.data.imagepath}`
-        );
-        const image = fs.readFileSync(imagePath, "base64");
-        res.contentType("multipart/mixed");
-        res.send({ status: data, image: image });
-    } catch (err) {
-        res.send({ status: data, image: null });
+    try{
+        const admno = req.query?.admno;
+        console.log("admno numer :", admno);
+        const query = `SELECT * FROM tbl_admission where session="2023-2024" and admno="${admno}" and active=1; `;
+        const data: any = await sqlQueryStatus(query);
+        console.log("basic details :", data);
+        try {
+            const imagePath = path.join(
+                __dirname,
+                `uploads/${data?.data.imagepath}`
+            );
+            const image = fs.readFileSync(imagePath, "base64");
+            res.contentType("multipart/mixed");
+            res.status(200).send({ status: data, image: image });
+        } catch (err) {
+            res.status(200).send({ status: data, image: null });
+        }
+    }catch(err:any){
+        res.status(400).send(err.message);
     }
 });
 
 app.get("/", (req: Request, res: Response) => {
-    res.send("<h1>Welcome to Eduware Android</h1>");
+    res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
 
 const EPORT = process.env.SPORT || 3000;
@@ -365,6 +384,8 @@ const io = new Server(httpServer, {
 interface sdb {
     admno: string;
     socketid: string;
+    class?:string;
+    sec?:string;
 }
 const dbActive:sdb[] = [];
 
@@ -381,9 +402,9 @@ function removeDup(arr:sdb[],admno:string) {
 
 
 async function getLength(admno:string):Promise<number>{
-    const usersel =`SELECT  COUNT(a.messageid) as c FROM adminAnnoucment a
-    LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
-    WHERE (a.receiver = '${admno}' OR a.receiver = 'all') 
+    const usersel =`SELECT  COUNT(a.messageid) as c FROM tbl_adminannounce a
+    LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid
+    WHERE (a.to = '${admno}' OR a.to= 'all') 
       AND u.messageid IS NULL ORDER BY a.messageid DESC;`
     const [unseen]:any  = await Promise.all([sqlQueryStatus(usersel)]);
     console.log("length :",unseen.data[0].c)
@@ -391,80 +412,98 @@ async function getLength(admno:string):Promise<number>{
 }
 io.on("connection", (socket) => {
     console.log("A user connected");
-    
-    socket.on("register", (response: { admno: string}) => {
+    socket.on("register", (response: { admno: string,class:string,sec:string}) => {
         removeDup(dbActive,response.admno)
         if(response.admno!==undefined){
 
             dbActive.push({
                 admno: response.admno,
                 socketid: socket.id,
+                class:response.class,
+                sec:response.sec
             })
         }
         console.log("active user", dbActive);
     });
     
-    socket.on("seen",(response: {admno: string,name:string,message:string,messageid:string}) => {
-        const insert = `INSERT INTO userAnnoucment (admno,name,messaged,messageid) VALUES ('${response.admno}','${response.name}','${response.message}','${response.messageid}');`
+    socket.on("seen",(response: {admno: string,name:string,message:string,messageid:string}):void => {
+        const insert = `INSERT INTO tbl_stdannounce (admno,name,messaged,messageid) 
+                        VALUES ('${response.admno}','${response.name}','${response.message}','${response.messageid}');`
         sqlQueryUpdate(insert);
     })
     
-    socket.on('getchat',async (response: {admno: string}) => {
-        const admno= `SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a
-        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
-        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all') ORDER BY a.messageid DESC;;
-                        `
-        const usersel =`SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a
-        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
-        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all') 
-          AND u.messageid IS NULL ORDER BY a.messageid DESC;
-          `        
-        const [seen,unseen]  = await Promise.all([sqlQueryStatus(admno),sqlQueryStatus(usersel)]);
-        console.log(seen,unseen);
-        socket.emit('getchat',{seen:seen.data,unseen:unseen.data});
-    })
-    
-    socket.on('getlength',async (response: {admno: string}) => {
+    socket.on('getchat',async (response: {admno: string,class:string,sec:string}):Promise<void> => {
+        const admno= `SELECT  a.messageid, a.message, a.to, a.from, a.date , a.time  FROM tbl_adminannounce a
+                    LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid
+                    WHERE (a.to = '${response.admno}' OR a.to = 'all' or a.class='${response.class}' 
+                                    AND (a.sec='all' or a.sec='${response.sec}')) ORDER BY a.messageid DESC;`
         
-        const usersel =`SELECT  COUNT(a.messageid) as c FROM adminAnnoucment a
-        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
-        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all') 
-          AND u.messageid IS NULL ORDER BY a.messageid DESC;
-          `        
+        const usersel =`SELECT  a.messageid, a.message, a.to, a.from, a.date , a.time  FROM tbl_adminannounce a
+                            LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid
+                            WHERE (a.to = '${response.admno}' OR a.to = 'all' or a.class='${response.class}' 
+                            AND (a.sec='all' or a.sec='${response.sec}')) 
+                            AND u.messageid IS NULL ORDER BY a.messageid DESC;`        
+        try{
+            const [seen,unseen]  = await Promise.all([sqlQueryStatus(admno),sqlQueryStatus(usersel)]);
+            console.log(seen,unseen);
+            socket.emit('getchat',{seen:seen.data,unseen:unseen.data});
+        }catch(err){
+            console.log(err);
+            socket.emit('getchat',{seen:null,unseen:null});
+        }
+    })
+    socket.on('getAdminChat',async (response:{admin:string,pass:string})=>{
+        const query= "SELECT  *  FROM tbl_adminannounce"
+        const data = await sqlQueryStatus(query);
+        socket.emit('getAdminChat',{data:data.data});
+    })
+
+    socket.on('getlength',async (response: {admno: string,class:string,sec:string}):Promise<void>  => {
+        const usersel =`SELECT  COUNT(a.messageid) as c FROM tbl_adminannounce a
+                            LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid
+                            WHERE (a.to = '${response.admno}' OR a.to = 'all' or a.class='${response.class}' AND (a.sec='all' or a.sec='${response.sec}')) 
+                            AND u.messageid IS NULL ORDER BY a.messageid DESC;` 
         const [unseen]:any  = await Promise.all([sqlQueryStatus(usersel)]);
         console.log("length :",unseen?.data[0]?.c)
         socket.emit('getlength',{unseen:unseen?.data[0]?.c});
     })
 
 
-    socket.on("admin", async(response: {message: string,reciver: string[],sender:string }) => {
-        console.log(response.message);
-        if(Array.isArray(response.reciver)===true){
-            for (let admno of response.reciver) {
-                const insert = `INSERT INTO adminAnnoucment (message,sender, receiver) VALUES ('${response.message}','${response.sender}','${admno}');`
-                sqlQueryUpdate(insert);
+    socket.on("admin", async(response: {message: string,to: string[],from:string,class:string,sec:string }):Promise<void> => {
+        console.log('repsponse :',response);
+        if(Array.isArray(response.to)===true){
+            for (let admno of response.to) {
+                const insert =`INSERT INTO tbl_adminannounce (message,\`from\`, \`to\`,class,sec) VALUES ('${response.message}','${response.from}','${admno}','${response.class}','${response.sec}');`
+                await sqlQueryUpdate(insert);
             }
-        }else{
-            console.log('send aa array')
-            return;
         }
-        if(response.reciver[0] === "all"){
+        else if(response.class!=='' ){
+            console.log("we entered")
+            const insert =`INSERT INTO tbl_adminannounce (message,\`from\`,\`to\`,class,sec) VALUES ('${response.message}','${response.from}','${response.class}','${response.class}','${response.sec}');`
+            console.log("status :",await sqlQueryUpdate(insert));
+            io.emit("notice","check message")
+            io.emit('getAdminStatus');
+        }
+        else if(response.to[0] === "all"){
             console.log('emited :',response.message);
             io.emit("notice", {"message":response.message});
+            io.emit('getAdminStatus');
+
         }
         else{
-            for (let i = 0; i < response.reciver.length; i++) {
+            for (let i = 0; i < response.to.length; i++) {
                 for (let j = 0; j < dbActive.length; j++) {
-                    if (dbActive[j].admno === response.reciver[i]) {
+                    if (dbActive[j].admno === response.to[i]) {
                         console.log(j,'passed ',dbActive[j]);
                         io.to(dbActive[j].socketid).emit("notice", response.message);
+                        io.emit('getAdminStatus');
                     }
                 }
             }
         }
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", ():void => {
         for (let i = 0; i < dbActive.length; i++) {
             if (dbActive[i].socketid == socket.id) {
                 dbActive.splice(i, 1);
@@ -474,7 +513,7 @@ io.on("connection", (socket) => {
     });
 });
 
-const PORT = process.env.PORT||443;
+const PORT = process.env.PORT||4000;
 httpServer.listen(PORT, () => {
     console.log("Socket is running on port localhost:",PORT);
 });

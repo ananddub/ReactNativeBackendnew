@@ -13,6 +13,8 @@ const io = new Server(httpServer, {
 interface sdb {
     admno: string;
     socketid: string;
+    class?:string;
+    sec?:string;
 }
 const dbActive:sdb[] = [];
 
@@ -20,31 +22,33 @@ const dbActive:sdb[] = [];
 io.on("connection", (socket) => {
     console.log("A user connected");
     
-    socket.on("register", (response: { admno: string}) => {
+    socket.on("register", (response: { admno: string,class:string,sec:string}) => {
         removeDup(dbActive,response.admno)
         if(response.admno!==undefined){
 
             dbActive.push({
                 admno: response.admno,
                 socketid: socket.id,
+                class:response.class,
+                sec:response.sec
             })
         }
         console.log("active user", dbActive);
     });
     
-    socket.on("seen",(response: {admno: string,name:string,message:string,messageid:string}) => {
-        const insert = `INSERT INTO userAnnoucment (admno,name,messaged,messageid) VALUES ('${response.admno}','${response.name}','${response.message}','${response.messageid}');`
+    socket.on("seen",(response: {admno: string,name:string,message:string,messageid:string,class:string,section:string}) => {
+        const insert = `INSERT INTO userAnnoucment (admno,name,messaged,messageid,class,section) VALUES ('${response.admno}','${response.name}','${response.message}','${response.messageid}','${response.class}','${response.section}');`
         sqlQueryUpdate(insert);
     })
     
-    socket.on('getchat',async (response: {admno: string}) => {
+    socket.on('getchat',async (response: {admno: string,class:string,sec:string}) => {
         const admno= `SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a
         LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
-        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all') ORDER BY a.messageid DESC;;
+        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all' ) ORDER BY a.messageid DESC;;
                         `
         const usersel =`SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a
         LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
-        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all') 
+        WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all' or class='${response.class}' or sec='${response.sec}') 
           AND u.messageid IS NULL ORDER BY a.messageid DESC;
           `        
         const [seen,unseen]  = await Promise.all([sqlQueryStatus(admno),sqlQueryStatus(usersel)]);
@@ -52,8 +56,7 @@ io.on("connection", (socket) => {
         socket.emit('getchat',{seen:seen.data,unseen:unseen.data});
     })
     
-    socket.on('getlength',async (response: {admno: string}) => {
-        
+    socket.on('getlength',async (response: {admno: string,class:string,sec:string}) => {
         const usersel =`SELECT  COUNT(a.messageid) as c FROM adminAnnoucment a
         LEFT JOIN userAnnoucment u ON a.messageid = u.messageid
         WHERE (a.receiver = '${response.admno}' OR a.receiver = 'all') 
@@ -104,13 +107,13 @@ io.on("connection", (socket) => {
 });
 
 io.engine.on("connection_error", (err) => {
-    console.log(err.req);      // the request object
-    console.log(err.code);     // the error code, for example 1
-    console.log(err.message);  // the error message, for example "Session ID unknown"
-    console.log(err.context);  // some additional error context
+    console.log(err.req);      
+    console.log(err.code);     
+    console.log(err.message);  
+    console.log(err.context);  
 });
 
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
     console.log("server is running on port localhost:434");
 });

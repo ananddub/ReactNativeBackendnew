@@ -56,12 +56,14 @@ io.on("connection", function (socket) {
             dbActive.push({
                 admno: response.admno,
                 socketid: socket.id,
+                class: response.class,
+                sec: response.sec
             });
         }
         console.log("active user", dbActive);
     });
     socket.on("seen", function (response) {
-        var insert = "INSERT INTO userAnnoucment (admno,name,messaged,messageid) VALUES ('".concat(response.admno, "','").concat(response.name, "','").concat(response.message, "','").concat(response.messageid, "');");
+        var insert = "INSERT INTO userAnnoucment (admno,name,messaged,messageid,class,section) VALUES ('".concat(response.admno, "','").concat(response.name, "','").concat(response.message, "','").concat(response.messageid, "','").concat(response.class, "','").concat(response.section, "');");
         sqlQueryUpdate(insert);
     });
     socket.on('getchat', function (response) { return __awaiter(void 0, void 0, void 0, function () {
@@ -69,8 +71,8 @@ io.on("connection", function (socket) {
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    admno = "SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all') ORDER BY a.messageid DESC;;\n                        ");
-                    usersel = "SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all') \n          AND u.messageid IS NULL ORDER BY a.messageid DESC;\n          ");
+                    admno = "SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all' ) ORDER BY a.messageid DESC;;\n                        ");
+                    usersel = "SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all' or class='").concat(response.class, "' or sec='").concat(response.sec, "') \n          AND u.messageid IS NULL ORDER BY a.messageid DESC;\n          ");
                     return [4 /*yield*/, Promise.all([sqlQueryStatus(admno), sqlQueryStatus(usersel)])];
                 case 1:
                     _a = _b.sent(), seen = _a[0], unseen = _a[1];
@@ -137,12 +139,12 @@ io.on("connection", function (socket) {
     });
 });
 io.engine.on("connection_error", function (err) {
-    console.log(err.req); // the request object
-    console.log(err.code); // the error code, for example 1
-    console.log(err.message); // the error message, for example "Session ID unknown"
-    console.log(err.context); // some additional error context
+    console.log(err.req);
+    console.log(err.code);
+    console.log(err.message);
+    console.log(err.context);
 });
-var PORT = process.env.PORT || 443;
+var PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, function () {
     console.log("server is running on port localhost:434");
 });
