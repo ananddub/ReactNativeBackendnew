@@ -368,10 +368,10 @@ app.get("/", (req: Request, res: Response) => {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
 
-const EPORT =process.env.PORT||3000;
-app.listen(EPORT, () => {
-    console.log("Server is running on port localhost:", EPORT);
-});
+// const EPORT =process.env.PORT||3000;
+// app.listen(EPORT, () => {
+//     console.log("Server is running on port localhost:", EPORT);
+// });
 
 
 
@@ -379,7 +379,7 @@ app.listen(EPORT, () => {
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { response } from "express";
-const httpServer = createServer(express());
+const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
 		origin: "*",
@@ -402,7 +402,6 @@ function removeDup(arr:sdb[],admno:string) {
         }
     }
 }
-
 
 
 
@@ -518,7 +517,7 @@ io.on("connection", (socket) => {
     });
 });
 
-const PORT = process.env.PORT1||4000;
+const PORT = process.env.PORT||4000;
 httpServer.listen(PORT, () => {
     console.log("Socket is running on port localhost:",PORT);
 });
