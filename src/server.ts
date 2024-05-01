@@ -71,7 +71,9 @@ async function sqlQueryStatus(query: string) {
     try {
         await new Promise((resolve, reject) => {
             db.connect((err) => {
-                if (err) reject(err);
+                if (err) {
+                    console.log(err)
+                    reject(err);}
                 resolve("done");
                 console.log("Connected to database");
             });
@@ -79,8 +81,11 @@ async function sqlQueryStatus(query: string) {
         const value = await new Promise((resolve, reject) => {
             db.query(query, (err, result) => {
                 try {
-                    if (err) reject(false);
-                    // console.log(result);
+                    if (err){ 
+                        console.log(err)
+                        reject(false);
+                    }
+                    console.log(result);
                     if (result.length > 0) resolve(result);
                     else resolve(false);
                 } catch (err) {
@@ -426,7 +431,7 @@ io.on("connection", (socket) => {
         console.log("active user", dbActive);
     });
     
-    socket.on("seen",(response: {admno: string,name:string,message:string,messageid:string}):void => {
+    socket.on("seen",(response: {admno: string,name:string,message:string,messageid:string,}):void => {
         const insert = `INSERT INTO tbl_stdannounce (admno,name,messaged,messageid) 
                         VALUES ('${response.admno}','${response.name}','${response.message}','${response.messageid}');`
         sqlQueryUpdate(insert);

@@ -126,8 +126,10 @@ function sqlQueryStatus(query) {
                     _a.trys.push([1, 4, , 5]);
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
                             db.connect(function (err) {
-                                if (err)
+                                if (err) {
+                                    console.log(err);
                                     reject(err);
+                                }
                                 resolve("done");
                                 console.log("Connected to database");
                             });
@@ -137,9 +139,11 @@ function sqlQueryStatus(query) {
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
                             db.query(query, function (err, result) {
                                 try {
-                                    if (err)
+                                    if (err) {
+                                        console.log(err);
                                         reject(false);
-                                    // console.log(result);
+                                    }
+                                    console.log(result);
                                     if (result.length > 0)
                                         resolve(result);
                                     else
