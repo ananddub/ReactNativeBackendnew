@@ -457,7 +457,7 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
 app.get("/", function (req, res) {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
-var EPORT = process.env.PORT1 || 3000;
+var EPORT = process.env.PORT;
 app.listen(EPORT, function () {
     console.log("Server is running on port localhost:", EPORT);
 });
@@ -631,7 +631,7 @@ io.on("connection", function (socket) {
         console.log("A user disconnected", dbActive);
     });
 });
-var PORT = process.env.PORT || 4000;
+var PORT = process.env.PORT1 || 4000;
 httpServer.listen(PORT, function () {
     console.log("Socket is running on port localhost:", PORT);
 });
