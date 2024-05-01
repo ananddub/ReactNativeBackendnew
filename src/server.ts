@@ -6,7 +6,7 @@ import * as multer from "multer";
 import * as bodyParser from "body-parser";
 import * as fs from "fs";
 import * as path from "path";
-
+// 
 const app = express();
 app.use(
     Cors({
@@ -374,7 +374,7 @@ app.listen(EPORT, () => {
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { response } from "express";
-const httpServer = createServer(express());
+const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
 		origin: "*",
