@@ -379,7 +379,7 @@ app.listen(EPORT, () => {
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { response } from "express";
-const httpServer = createServer();
+const httpServer = createServer(express());
 const io = new Server(httpServer, {
     cors: {
 		origin: "*",
