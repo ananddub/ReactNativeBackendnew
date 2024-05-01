@@ -453,7 +453,7 @@ io.on("connection", (socket) => {
         }
     })
     socket.on('getAdminChat',async (response:{admin:string,pass:string})=>{
-        const query= "SELECT  *  FROM tbl_adminannounce"
+        const query= "SELECT  *  FROM tbl_adminannounce ORDER BY messageid DESC"
         const data = await sqlQueryStatus(query);
         socket.emit('getAdminChat',{data:data.data});
     })

@@ -539,7 +539,7 @@ io.on("connection", function (socket) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    query = "SELECT  *  FROM tbl_adminannounce";
+                    query = "SELECT  *  FROM tbl_adminannounce ORDER BY messageid DESC";
                     return [4 /*yield*/, sqlQueryStatus(query)];
                 case 1:
                     data = _a.sent();
