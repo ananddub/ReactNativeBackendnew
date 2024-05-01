@@ -513,7 +513,7 @@ io.on("connection", (socket) => {
     });
 });
 
-const PORT = process.env.PORT||4000;
+const PORT = process.env.PORT||434;
 httpServer.listen(PORT, () => {
     console.log("Socket is running on port localhost:",PORT);
 });

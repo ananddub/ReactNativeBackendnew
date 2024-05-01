@@ -627,7 +627,7 @@ io.on("connection", function (socket) {
         console.log("A user disconnected", dbActive);
     });
 });
-var PORT = process.env.PORT || 4000;
+var PORT = process.env.PORT || 434;
 httpServer.listen(PORT, function () {
     console.log("Socket is running on port localhost:", PORT);
 });
