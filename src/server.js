@@ -209,6 +209,7 @@ function sqlQueryUpdate(query) {
                                     resolve(true);
                                 }
                                 catch (err) {
+                                    console.log(err);
                                     resolve(false);
                                 }
                             });
@@ -304,34 +305,45 @@ function paymentDetails(admno, session) {
 var upload = multer({ storage: storage });
 app.put("/imageupload", upload.single("image"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        console.log("uploaded sucess fully");
-        res.send({ status: "success" });
+        try {
+            console.log("uploaded sucess fully");
+            res.status(200).send({ status: "success" });
+        }
+        catch (err) {
+            res.status(400).send(err.message);
+        }
         return [2 /*return*/];
     });
 }); });
 app.put("/profileupdate", upload.single("image"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, admno, imagename, name, fname, mname, pdist, update, data;
+    var _a, admno, imagename, name_1, fname, mname, pdist, update, data, err_4;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _a = req.body, admno = _a.admno, imagename = _a.imagename, name = _a.name, fname = _a.fname, mname = _a.mname, pdist = _a.pdist;
-                update = "UPDATE tbl_admission SET \n                    name  = '".concat(name, "',\n                    fname = '").concat(fname, "',\n                    mname = '").concat(mname, "', \n                    pdist = '").concat(pdist, "'\n                    ").concat(imagename !== undefined
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, admno = _a.admno, imagename = _a.imagename, name_1 = _a.name, fname = _a.fname, mname = _a.mname, pdist = _a.pdist;
+                update = "UPDATE tbl_admission SET \n                        name  = '".concat(name_1, "',\n                        fname = '").concat(fname, "',\n                        mname = '").concat(mname, "', \n                        pdist = '").concat(pdist, "'\n                        ").concat(imagename !== undefined
                     ? ", imagepath = '".concat(imagename, "'")
-                    : "", "\n                    WHERE admno = '").concat(admno, "' AND active = 1 AND session = '2023-2024';");
+                    : "", "\n                        WHERE admno = '").concat(admno, "' AND active = 1 AND session = '2023-2024';");
                 return [4 /*yield*/, sqlQueryUpdate(update)];
             case 1:
                 data = _b.sent();
                 console.clear();
-                console.log([name, fname, mname, pdist, admno]);
+                console.log([name_1, fname, mname, pdist, admno]);
                 // console.log("parsed data:", data);
                 console.log("updated sucess fully ", data, imagename, typeof imagename);
-                res.send(data);
-                return [2 /*return*/];
+                res.status(200).send(data);
+                return [3 /*break*/, 3];
+            case 2:
+                err_4 = _b.sent();
+                res.status(400).send(err_4.message);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var phone, query, data, image, _i, _a, value, imagePath, img, obj, obj, err_4;
+    var phone, query, data, image, _i, _a, value, imagePath, img, obj, obj, err_5;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -367,22 +379,23 @@ app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void
                         }
                     }
                 // console.log(data);
-                res.send({ status: data, image: image });
+                res.status(200).send({ status: data, image: image });
                 return [3 /*break*/, 3];
             case 2:
-                err_4 = _c.sent();
-                res.send({ status: false, image: null });
+                err_5 = _c.sent();
+                res.status(400).send({ status: false, image: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/paymentDetails", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var admno, data, imagePath, image;
+    var admno, data, imagePath, image, err_6;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
+                _b.trys.push([0, 2, , 3]);
                 admno = (_a = req.query) === null || _a === void 0 ? void 0 : _a.admno;
                 return [4 /*yield*/, paymentDetails("".concat(admno), "2023-2024")];
             case 1:
@@ -391,21 +404,27 @@ app.get("/paymentDetails", function (req, res) { return __awaiter(void 0, void 0
                     imagePath = path.join(__dirname, "uploads/".concat(data.tbl_admission.imagepath));
                     image = fs.readFileSync(imagePath, "base64");
                     res.contentType("content/json");
-                    res.send({ status: true, data: data, image: image });
+                    res.status(200).send({ status: true, data: data, image: image });
                 }
                 catch (err) {
-                    res.send({ status: data, data: data, image: null });
+                    res.status(200).send({ status: data, data: data, image: null });
                 }
-                return [2 /*return*/];
+                return [3 /*break*/, 3];
+            case 2:
+                err_6 = _b.sent();
+                res.status(400).send(err_6.message);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var admno, query, data, imagePath, image;
+    var admno, query, data, imagePath, image, err_7;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
+                _b.trys.push([0, 2, , 3]);
                 admno = (_a = req.query) === null || _a === void 0 ? void 0 : _a.admno;
                 console.log("admno numer :", admno);
                 query = "SELECT * FROM tbl_admission where session=\"2023-2024\" and admno=\"".concat(admno, "\" and active=1; ");
@@ -417,17 +436,22 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
                     imagePath = path.join(__dirname, "uploads/".concat(data === null || data === void 0 ? void 0 : data.data.imagepath));
                     image = fs.readFileSync(imagePath, "base64");
                     res.contentType("multipart/mixed");
-                    res.send({ status: data, image: image });
+                    res.status(200).send({ status: data, image: image });
                 }
                 catch (err) {
-                    res.send({ status: data, image: null });
+                    res.status(200).send({ status: data, image: null });
                 }
-                return [2 /*return*/];
+                return [3 /*break*/, 3];
+            case 2:
+                err_7 = _b.sent();
+                res.status(400).send(err_7.message);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/", function (req, res) {
-    res.send("<h1>Welcome to Eduware Android</h1>");
+    res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
 var EPORT = process.env.SPORT || 3000;
 app.listen(EPORT, function () {
@@ -435,7 +459,7 @@ app.listen(EPORT, function () {
 });
 var http_1 = require("http");
 var socket_io_1 = require("socket.io");
-var httpServer = (0, http_1.createServer)();
+var httpServer = (0, http_1.createServer)(express());
 var io = new socket_io_1.Server(httpServer, {
     cors: {
         origin: "*",
@@ -457,7 +481,7 @@ function getLength(admno) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    usersel = "SELECT  COUNT(a.messageid) as c FROM adminAnnoucment a\n    LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n    WHERE (a.receiver = '".concat(admno, "' OR a.receiver = 'all') \n      AND u.messageid IS NULL ORDER BY a.messageid DESC;");
+                    usersel = "SELECT  COUNT(a.messageid) as c FROM tbl_adminannounce a\n    LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid\n    WHERE (a.to = '".concat(admno, "' OR a.to= 'all') \n      AND u.messageid IS NULL ORDER BY a.messageid DESC;");
                     return [4 /*yield*/, Promise.all([sqlQueryStatus(usersel)])];
                 case 1:
                     unseen = (_a.sent())[0];
@@ -475,26 +499,51 @@ io.on("connection", function (socket) {
             dbActive.push({
                 admno: response.admno,
                 socketid: socket.id,
+                class: response.class,
+                sec: response.sec
             });
         }
         console.log("active user", dbActive);
     });
     socket.on("seen", function (response) {
-        var insert = "INSERT INTO userAnnoucment (admno,name,messaged,messageid) VALUES ('".concat(response.admno, "','").concat(response.name, "','").concat(response.message, "','").concat(response.messageid, "');");
+        var insert = "INSERT INTO tbl_stdannounce (admno,name,messaged,messageid) \n                        VALUES ('".concat(response.admno, "','").concat(response.name, "','").concat(response.message, "','").concat(response.messageid, "');");
         sqlQueryUpdate(insert);
     });
     socket.on('getchat', function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var admno, usersel, _a, seen, unseen;
+        var admno, usersel, _a, seen, unseen, err_8;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    admno = "SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all') ORDER BY a.messageid DESC;;\n                        ");
-                    usersel = "SELECT  a.messageid, a.message, a.receiver, a.sender, a.date , a.time  FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all') \n          AND u.messageid IS NULL ORDER BY a.messageid DESC;\n          ");
-                    return [4 /*yield*/, Promise.all([sqlQueryStatus(admno), sqlQueryStatus(usersel)])];
+                    admno = "SELECT  a.messageid, a.message, a.to, a.from, a.date , a.time  FROM tbl_adminannounce a\n                    LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid\n                    WHERE (a.to = '".concat(response.admno, "' OR a.to = 'all' or a.class='").concat(response.class, "' \n                                    AND (a.sec='all' or a.sec='").concat(response.sec, "')) ORDER BY a.messageid DESC;");
+                    usersel = "SELECT  a.messageid, a.message, a.to, a.from, a.date , a.time  FROM tbl_adminannounce a\n                            LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid\n                            WHERE (a.to = '".concat(response.admno, "' OR a.to = 'all' or a.class='").concat(response.class, "' \n                            AND (a.sec='all' or a.sec='").concat(response.sec, "')) \n                            AND u.messageid IS NULL ORDER BY a.messageid DESC;");
+                    _b.label = 1;
                 case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, Promise.all([sqlQueryStatus(admno), sqlQueryStatus(usersel)])];
+                case 2:
                     _a = _b.sent(), seen = _a[0], unseen = _a[1];
                     console.log(seen, unseen);
                     socket.emit('getchat', { seen: seen.data, unseen: unseen.data });
+                    return [3 /*break*/, 4];
+                case 3:
+                    err_8 = _b.sent();
+                    console.log(err_8);
+                    socket.emit('getchat', { seen: null, unseen: null });
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+    socket.on('getAdminChat', function (response) { return __awaiter(void 0, void 0, void 0, function () {
+        var query, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    query = "SELECT  *  FROM tbl_adminannounce";
+                    return [4 /*yield*/, sqlQueryStatus(query)];
+                case 1:
+                    data = _a.sent();
+                    socket.emit('getAdminChat', { data: data.data });
                     return [2 /*return*/];
             }
         });
@@ -505,7 +554,7 @@ io.on("connection", function (socket) {
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    usersel = "SELECT  COUNT(a.messageid) as c FROM adminAnnoucment a\n        LEFT JOIN userAnnoucment u ON a.messageid = u.messageid\n        WHERE (a.receiver = '".concat(response.admno, "' OR a.receiver = 'all') \n          AND u.messageid IS NULL ORDER BY a.messageid DESC;\n          ");
+                    usersel = "SELECT  COUNT(a.messageid) as c FROM tbl_adminannounce a\n                            LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid\n                            WHERE (a.to = '".concat(response.admno, "' OR a.to = 'all' or a.class='").concat(response.class, "' AND (a.sec='all' or a.sec='").concat(response.sec, "')) \n                            AND u.messageid IS NULL ORDER BY a.messageid DESC;");
                     return [4 /*yield*/, Promise.all([sqlQueryStatus(usersel)])];
                 case 1:
                     unseen = (_c.sent())[0];
@@ -516,35 +565,57 @@ io.on("connection", function (socket) {
         });
     }); });
     socket.on("admin", function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var _i, _a, admno, insert, i, j;
-        return __generator(this, function (_b) {
-            console.log(response.message);
-            if (Array.isArray(response.reciver) === true) {
-                for (_i = 0, _a = response.reciver; _i < _a.length; _i++) {
+        var _i, _a, admno, insert, insert, _b, _c, _d, i, j;
+        return __generator(this, function (_e) {
+            switch (_e.label) {
+                case 0:
+                    console.log('repsponse :', response);
+                    if (!(Array.isArray(response.to) === true)) return [3 /*break*/, 4];
+                    _i = 0, _a = response.to;
+                    _e.label = 1;
+                case 1:
+                    if (!(_i < _a.length)) return [3 /*break*/, 4];
                     admno = _a[_i];
-                    insert = "INSERT INTO adminAnnoucment (message,sender, receiver) VALUES ('".concat(response.message, "','").concat(response.sender, "','").concat(admno, "');");
-                    sqlQueryUpdate(insert);
-                }
-            }
-            else {
-                console.log('send aa array');
-                return [2 /*return*/];
-            }
-            if (response.reciver[0] === "all") {
-                console.log('emited :', response.message);
-                io.emit("notice", { "message": response.message });
-            }
-            else {
-                for (i = 0; i < response.reciver.length; i++) {
-                    for (j = 0; j < dbActive.length; j++) {
-                        if (dbActive[j].admno === response.reciver[i]) {
-                            console.log(j, 'passed ', dbActive[j]);
-                            io.to(dbActive[j].socketid).emit("notice", response.message);
+                    insert = "INSERT INTO tbl_adminannounce (message,`from`, `to`,class,sec) VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(admno, "','").concat(response.class, "','").concat(response.sec, "');");
+                    return [4 /*yield*/, sqlQueryUpdate(insert)];
+                case 2:
+                    _e.sent();
+                    _e.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4:
+                    if (!(response.class !== '')) return [3 /*break*/, 6];
+                    console.log("we entered");
+                    insert = "INSERT INTO tbl_adminannounce (message,`from`,`to`,class,sec) VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(response.class, "','").concat(response.class, "','").concat(response.sec, "');");
+                    _c = (_b = console).log;
+                    _d = ["status :"];
+                    return [4 /*yield*/, sqlQueryUpdate(insert)];
+                case 5:
+                    _c.apply(_b, _d.concat([_e.sent()]));
+                    io.emit("notice", "check message");
+                    io.emit('getAdminStatus');
+                    return [3 /*break*/, 7];
+                case 6:
+                    if (response.to[0] === "all") {
+                        console.log('emited :', response.message);
+                        io.emit("notice", { "message": response.message });
+                        io.emit('getAdminStatus');
+                    }
+                    else {
+                        for (i = 0; i < response.to.length; i++) {
+                            for (j = 0; j < dbActive.length; j++) {
+                                if (dbActive[j].admno === response.to[i]) {
+                                    console.log(j, 'passed ', dbActive[j]);
+                                    io.to(dbActive[j].socketid).emit("notice", response.message);
+                                    io.emit('getAdminStatus');
+                                }
+                            }
                         }
                     }
-                }
+                    _e.label = 7;
+                case 7: return [2 /*return*/];
             }
-            return [2 /*return*/];
         });
     }); });
     socket.on("disconnect", function () {
@@ -556,7 +627,7 @@ io.on("connection", function (socket) {
         console.log("A user disconnected", dbActive);
     });
 });
-var PORT = process.env.PORT || 443;
+var PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, function () {
     console.log("Socket is running on port localhost:", PORT);
 });

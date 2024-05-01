@@ -374,7 +374,7 @@ app.listen(EPORT, () => {
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { response } from "express";
-const httpServer = createServer();
+const httpServer = createServer(express());
 const io = new Server(httpServer, {
     cors: {
 		origin: "*",
@@ -477,7 +477,7 @@ io.on("connection", (socket) => {
                 await sqlQueryUpdate(insert);
             }
         }
-        else if(response.class!=='' ){
+        if(response.class!=='' ){
             console.log("we entered")
             const insert =`INSERT INTO tbl_adminannounce (message,\`from\`,\`to\`,class,sec) VALUES ('${response.message}','${response.from}','${response.class}','${response.class}','${response.sec}');`
             console.log("status :",await sqlQueryUpdate(insert));
