@@ -376,7 +376,7 @@ app.get("/searchstd",async (req: Request, res: Response) => {
     const clas = req.query.class!=="null"?`class="${req.query.class}"`:'';
     const sec = req.query.sec!=="null"?`and section="${req.query.sec}"`:'';
     const roll = req.query.roll!=="null"?`and roll="${req.query.roll}"`:'';
-    const query = `SELECT admno,name,class,roll,section FROM tbl_admission where   ${clas} ${sec} ${roll} and session="2023-2024" and active=1  ORDER BY roll`;
+    const query = `SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ${clas} ${sec} ${roll} and session="2023-2024" and active=1  ORDER BY roll`;
     const data = await sqlQueryStatus(query);
     if(data.status === true){
         res.status(200).send(data.data);
@@ -489,13 +489,16 @@ io.on("connection", (socket) => {
         socket.emit('getlength',{unseen:unseen?.data[0]?.c});
     })
 
-
-    socket.on("admin", async(response: {message: string,to: string[],from:string,class:string,sec:string }):Promise<void> => {
+// {message: string,to: string[],from:string,class:string,sec:string }
+    socket.on("admin", async(response:any ):Promise<void> => {
         console.log('repsponse :',response);
         if(Array.isArray(response.to)===true){
+            let i = 0;
             for (let admno of response.to) {
-                const insert =`INSERT INTO tbl_adminannounce (message,\`from\`, \`to\`,class,sec) VALUES ('${response.message}','${response.from}','${admno}','${response.class}','${response.sec}');`
+                const insert =`INSERT INTO tbl_adminannounce (message,\`from\`, \`to\`,name,fname,mclass,msec,mroll) 
+                VALUES ('${response.message}','${response.from}','${admno}','${response.name[i]}','${response.fname[i]}','${response.mclass[i]}','${response.msec[i]}','${response.mroll[i]}');`
                 await sqlQueryUpdate(insert);
+                i+=1;
             }
             for (let i = 0; i < response.to.length; i++) {
                 for (let j = 0; j < dbActive.length; j++) {
@@ -520,6 +523,7 @@ io.on("connection", (socket) => {
             io.emit('getAdminStatus');
 
         }
+        socket.disconnect()
     });
 
     socket.on("disconnect", ():void => {

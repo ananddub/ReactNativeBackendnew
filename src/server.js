@@ -470,7 +470,7 @@ app.get("/searchstd", function (req, res) { return __awaiter(void 0, void 0, voi
                 clas = req.query.class !== "null" ? "class=\"".concat(req.query.class, "\"") : '';
                 sec = req.query.sec !== "null" ? "and section=\"".concat(req.query.sec, "\"") : '';
                 roll = req.query.roll !== "null" ? "and roll=\"".concat(req.query.roll, "\"") : '';
-                query = "SELECT admno,name,class,roll,section FROM tbl_admission where   ".concat(clas, " ").concat(sec, " ").concat(roll, " and session=\"2023-2024\" and active=1  ORDER BY roll");
+                query = "SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ".concat(clas, " ").concat(sec, " ").concat(roll, " and session=\"2023-2024\" and active=1  ORDER BY roll");
                 return [4 /*yield*/, sqlQueryStatus(query)];
             case 1:
                 data = _a.sent();
@@ -595,30 +595,33 @@ io.on("connection", function (socket) {
             }
         });
     }); });
+    // {message: string,to: string[],from:string,class:string,sec:string }
     socket.on("admin", function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var _i, _a, admno, insert, i, j, insert, _b, _c, _d;
+        var i, _i, _a, admno, insert, i_1, j, insert, _b, _c, _d;
         return __generator(this, function (_e) {
             switch (_e.label) {
                 case 0:
                     console.log('repsponse :', response);
                     if (!(Array.isArray(response.to) === true)) return [3 /*break*/, 5];
+                    i = 0;
                     _i = 0, _a = response.to;
                     _e.label = 1;
                 case 1:
                     if (!(_i < _a.length)) return [3 /*break*/, 4];
                     admno = _a[_i];
-                    insert = "INSERT INTO tbl_adminannounce (message,`from`, `to`,class,sec) VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(admno, "','").concat(response.class, "','").concat(response.sec, "');");
+                    insert = "INSERT INTO tbl_adminannounce (message,`from`, `to`,name,fname,mclass,msec,mroll) \n                VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(admno, "','").concat(response.name[i], "','").concat(response.fname[i], "','").concat(response.mclass[i], "','").concat(response.msec[i], "','").concat(response.mroll[i], "');");
                     return [4 /*yield*/, sqlQueryUpdate(insert)];
                 case 2:
                     _e.sent();
+                    i += 1;
                     _e.label = 3;
                 case 3:
                     _i++;
                     return [3 /*break*/, 1];
                 case 4:
-                    for (i = 0; i < response.to.length; i++) {
+                    for (i_1 = 0; i_1 < response.to.length; i_1++) {
                         for (j = 0; j < dbActive.length; j++) {
-                            if (dbActive[j].admno === response.to[i]) {
+                            if (dbActive[j].admno === response.to[i_1]) {
                                 console.log(j, 'passed ', dbActive[j]);
                                 io.to(dbActive[j].socketid).emit("notice", response.message);
                                 io.emit('getAdminStatus');
@@ -645,7 +648,9 @@ io.on("connection", function (socket) {
                         io.emit('getAdminStatus');
                     }
                     _e.label = 8;
-                case 8: return [2 /*return*/];
+                case 8:
+                    socket.disconnect();
+                    return [2 /*return*/];
             }
         });
     }); });
