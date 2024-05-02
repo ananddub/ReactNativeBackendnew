@@ -457,6 +457,33 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
 app.get("/", function (req, res) {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
+app.get("/searchstd", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var clas, sec, roll, query, data;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (req.query.class === "all" || req.query.class === "null") {
+                    res.status(400).send('Invalid Request');
+                    return [2 /*return*/];
+                }
+                console.log(req.query);
+                clas = req.query.class !== "null" ? "class=\"".concat(req.query.class, "\"") : '';
+                sec = req.query.sec !== "null" ? "and section=\"".concat(req.query.sec, "\"") : '';
+                roll = req.query.roll !== "null" ? "and roll=\"".concat(req.query.roll, "\"") : '';
+                query = "SELECT admno,name,class,roll,section FROM tbl_admission where   ".concat(clas, " ").concat(sec, " ").concat(roll, " and session=\"2023-2024\" and active=1  ORDER BY roll");
+                return [4 /*yield*/, sqlQueryStatus(query)];
+            case 1:
+                data = _a.sent();
+                if (data.status === true) {
+                    res.status(200).send(data.data);
+                }
+                else {
+                    res.status(404).send('Invalid Request');
+                }
+                return [2 /*return*/];
+        }
+    });
+}); });
 // const EPORT =process.env.PORT||3000;
 // app.listen(EPORT, () => {
 //     console.log("Server is running on port localhost:", EPORT);
@@ -569,12 +596,12 @@ io.on("connection", function (socket) {
         });
     }); });
     socket.on("admin", function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var _i, _a, admno, insert, insert, _b, _c, _d, i, j;
+        var _i, _a, admno, insert, i, j, insert, _b, _c, _d;
         return __generator(this, function (_e) {
             switch (_e.label) {
                 case 0:
                     console.log('repsponse :', response);
-                    if (!(Array.isArray(response.to) === true)) return [3 /*break*/, 4];
+                    if (!(Array.isArray(response.to) === true)) return [3 /*break*/, 5];
                     _i = 0, _a = response.to;
                     _e.label = 1;
                 case 1:
@@ -589,36 +616,36 @@ io.on("connection", function (socket) {
                     _i++;
                     return [3 /*break*/, 1];
                 case 4:
-                    if (!(response.class !== '')) return [3 /*break*/, 6];
+                    for (i = 0; i < response.to.length; i++) {
+                        for (j = 0; j < dbActive.length; j++) {
+                            if (dbActive[j].admno === response.to[i]) {
+                                console.log(j, 'passed ', dbActive[j]);
+                                io.to(dbActive[j].socketid).emit("notice", response.message);
+                                io.emit('getAdminStatus');
+                            }
+                        }
+                    }
+                    return [3 /*break*/, 8];
+                case 5:
+                    if (!(response.class !== '')) return [3 /*break*/, 7];
                     console.log("we entered");
                     insert = "INSERT INTO tbl_adminannounce (message,`from`,`to`,class,sec) VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(response.class, "','").concat(response.class, "','").concat(response.sec, "');");
                     _c = (_b = console).log;
                     _d = ["status :"];
                     return [4 /*yield*/, sqlQueryUpdate(insert)];
-                case 5:
+                case 6:
                     _c.apply(_b, _d.concat([_e.sent()]));
                     io.emit("notice", "check message");
                     io.emit('getAdminStatus');
-                    return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 8];
+                case 7:
                     if (response.to[0] === "all") {
                         console.log('emited :', response.message);
                         io.emit("notice", { "message": response.message });
                         io.emit('getAdminStatus');
                     }
-                    else {
-                        for (i = 0; i < response.to.length; i++) {
-                            for (j = 0; j < dbActive.length; j++) {
-                                if (dbActive[j].admno === response.to[i]) {
-                                    console.log(j, 'passed ', dbActive[j]);
-                                    io.to(dbActive[j].socketid).emit("notice", response.message);
-                                    io.emit('getAdminStatus');
-                                }
-                            }
-                        }
-                    }
-                    _e.label = 7;
-                case 7: return [2 /*return*/];
+                    _e.label = 8;
+                case 8: return [2 /*return*/];
             }
         });
     }); });

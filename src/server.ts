@@ -367,6 +367,23 @@ app.get("/BasicDetails", async (req: Request, res: Response) => {
 app.get("/", (req: Request, res: Response) => {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
+app.get("/searchstd",async (req: Request, res: Response) => {
+    if(req.query.class==="all" || req.query.class==="null"){
+        res.status(400).send('Invalid Request');
+        return;
+    }
+    console.log(req.query)
+    const clas = req.query.class!=="null"?`class="${req.query.class}"`:'';
+    const sec = req.query.sec!=="null"?`and section="${req.query.sec}"`:'';
+    const roll = req.query.roll!=="null"?`and roll="${req.query.roll}"`:'';
+    const query = `SELECT admno,name,class,roll,section FROM tbl_admission where   ${clas} ${sec} ${roll} and session="2023-2024" and active=1  ORDER BY roll`;
+    const data = await sqlQueryStatus(query);
+    if(data.status === true){
+        res.status(200).send(data.data);
+    }else{
+        res.status(404).send('Invalid Request');
+    }
+})
 
 // const EPORT =process.env.PORT||3000;
 // app.listen(EPORT, () => {
@@ -378,7 +395,6 @@ app.get("/", (req: Request, res: Response) => {
 
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
-import { response } from "express";
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
@@ -435,7 +451,8 @@ io.on("connection", (socket) => {
                         VALUES ('${response.admno}','${response.name}','${response.message}','${response.messageid}');`
         sqlQueryUpdate(insert);
     })
-    
+
+
     socket.on('getchat',async (response: {admno: string,class:string,sec:string}):Promise<void> => {
         const admno= `SELECT  a.messageid, a.message, a.to, a.from, a.date , a.time  FROM tbl_adminannounce a
                     LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid
@@ -480,8 +497,17 @@ io.on("connection", (socket) => {
                 const insert =`INSERT INTO tbl_adminannounce (message,\`from\`, \`to\`,class,sec) VALUES ('${response.message}','${response.from}','${admno}','${response.class}','${response.sec}');`
                 await sqlQueryUpdate(insert);
             }
+            for (let i = 0; i < response.to.length; i++) {
+                for (let j = 0; j < dbActive.length; j++) {
+                    if (dbActive[j].admno === response.to[i]) {
+                        console.log(j,'passed ',dbActive[j]);
+                        io.to(dbActive[j].socketid).emit("notice", response.message);
+                        io.emit('getAdminStatus');
+                    }
+                }
+            }
         }
-        if(response.class!=='' ){
+        else if(response.class!=='' ){
             console.log("we entered")
             const insert =`INSERT INTO tbl_adminannounce (message,\`from\`,\`to\`,class,sec) VALUES ('${response.message}','${response.from}','${response.class}','${response.class}','${response.sec}');`
             console.log("status :",await sqlQueryUpdate(insert));
@@ -493,17 +519,6 @@ io.on("connection", (socket) => {
             io.emit("notice", {"message":response.message});
             io.emit('getAdminStatus');
 
-        }
-        else{
-            for (let i = 0; i < response.to.length; i++) {
-                for (let j = 0; j < dbActive.length; j++) {
-                    if (dbActive[j].admno === response.to[i]) {
-                        console.log(j,'passed ',dbActive[j]);
-                        io.to(dbActive[j].socketid).emit("notice", response.message);
-                        io.emit('getAdminStatus');
-                    }
-                }
-            }
         }
     });
 
