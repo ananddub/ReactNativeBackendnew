@@ -27,8 +27,8 @@ function getImage(img:string):string{
         const image = fs.readFileSync(imagePath, "base64");
         return image
     }catch(e){
-        const image = fs.readFileSync('uploads/profile.png', "base64");
-        return image
+        // const image = fs.readFileSync('uploads/profile.png', "base64");
+        return ''
     }
 }
 async function sqlQuery(query: string) {

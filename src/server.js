@@ -52,6 +52,17 @@ app.use(Cors({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.text());
+function getImage(img) {
+    try {
+        var imagePath = path.join(__dirname, "uploads/".concat(img));
+        var image = fs.readFileSync(imagePath, "base64");
+        return image;
+    }
+    catch (e) {
+        // const image = fs.readFileSync('uploads/profile.png', "base64");
+        return '';
+    }
+}
 function sqlQuery(query) {
     return __awaiter(this, void 0, void 0, function () {
         var db, value, err_1;
@@ -142,13 +153,17 @@ function sqlQueryStatus(query) {
                                         console.log(err);
                                         reject(false);
                                     }
-                                    console.log(result);
+                                    // console.log(result);
                                     if (result.length > 0)
                                         resolve(result);
-                                    else
+                                    else {
+                                        // console.log(result);
                                         resolve(false);
+                                    }
+                                    ;
                                 }
                                 catch (err) {
+                                    console.log(err);
                                     resolve(false);
                                 }
                             });
@@ -157,7 +172,7 @@ function sqlQueryStatus(query) {
                     value = _a.sent();
                     db.end();
                     console.log("conection end");
-                    console.log("result of sql :", value);
+                    // console.log("result of sql :", value);
                     if (value == false)
                         return [2 /*return*/, { status: false, data: value }];
                     else
@@ -221,8 +236,8 @@ function sqlQueryUpdate(query) {
                 case 3:
                     value = _a.sent();
                     db.end();
-                    console.log("conection end");
-                    console.log("result of sql :", value);
+                    // console.log("conection end");
+                    // console.log("result of sql :", value);
                     return [2 /*return*/, { status: value }];
                 case 4:
                     err_3 = _a.sent();
@@ -308,19 +323,29 @@ function paymentDetails(admno, session) {
 }); });
 var upload = multer({ storage: storage });
 app.put("/imageupload", upload.single("image"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        try {
-            console.log("uploaded sucess fully");
-            res.status(200).send({ status: "success" });
+    var _a, admno, imagename, query, data, err_4;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, admno = _a.admno, imagename = _a.imagename;
+                query = "UPDATE tbl_admission SET imagepath = \"".concat(imagename, "\" WHERE admno = '").concat(admno, "' AND active = 1 AND session = '2023-2024';");
+                return [4 /*yield*/, sqlQueryUpdate(query)];
+            case 1:
+                data = _b.sent();
+                console.log("uploaded sucess fully ", req.body);
+                res.status(200).send({ status: "success" });
+                return [3 /*break*/, 3];
+            case 2:
+                err_4 = _b.sent();
+                res.status(400).send(err_4.message);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
-        catch (err) {
-            res.status(400).send(err.message);
-        }
-        return [2 /*return*/];
     });
 }); });
 app.put("/profileupdate", upload.single("image"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, admno, imagename, name_1, fname, mname, pdist, update, data, err_4;
+    var _a, admno, imagename, name_1, fname, mname, pdist, update, data, err_5;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -339,15 +364,15 @@ app.put("/profileupdate", upload.single("image"), function (req, res) { return _
                 res.status(200).send(data);
                 return [3 /*break*/, 3];
             case 2:
-                err_4 = _b.sent();
-                res.status(400).send(err_4.message);
+                err_5 = _b.sent();
+                res.status(400).send(err_5.message);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var phone, query, data, image, _i, _a, value, imagePath, img, obj, obj, err_5;
+    var phone, query, data, image, _i, _a, value, imagePath, img, obj, obj, err_6;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -386,7 +411,7 @@ app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void
                 res.status(200).send({ status: data, image: image });
                 return [3 /*break*/, 3];
             case 2:
-                err_5 = _c.sent();
+                err_6 = _c.sent();
                 res.status(400).send({ status: false, image: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -394,7 +419,7 @@ app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void
     });
 }); });
 app.get("/paymentDetails", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var admno, data, imagePath, image, err_6;
+    var admno, data, imagePath, image, err_7;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -415,15 +440,15 @@ app.get("/paymentDetails", function (req, res) { return __awaiter(void 0, void 0
                 }
                 return [3 /*break*/, 3];
             case 2:
-                err_6 = _b.sent();
-                res.status(400).send(err_6.message);
+                err_7 = _b.sent();
+                res.status(400).send(err_7.message);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var admno, query, data, imagePath, image, err_7;
+    var admno, query, data, imagePath, image, err_8;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -447,8 +472,8 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
                 }
                 return [3 /*break*/, 3];
             case 2:
-                err_7 = _b.sent();
-                res.status(400).send(err_7.message);
+                err_8 = _b.sent();
+                res.status(400).send(err_8.message);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
@@ -457,13 +482,40 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
 app.get("/", function (req, res) {
     res.status(200).send("<h1>Welcome to Eduware Android</h1>");
 });
-var EPORT = parseInt(process.env.SPORT) || "3000";
-app.listen(EPORT, '0.0.0.0', function () {
-    console.log("Server is running on port localhost:", EPORT);
-});
+app.get("/searchstd", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var clas, sec, roll, query, data;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (req.query.class === "all" || req.query.class === "null") {
+                    res.status(400).send('Invalid Request');
+                    return [2 /*return*/];
+                }
+                console.log(req.query);
+                clas = req.query.class !== "null" ? "class=\"".concat(req.query.class, "\"") : '';
+                sec = req.query.sec !== "null" ? "and section=\"".concat(req.query.sec, "\"") : '';
+                roll = req.query.roll !== "null" ? "and roll=\"".concat(req.query.roll, "\"") : '';
+                query = "SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ".concat(clas, " ").concat(sec, " ").concat(roll, " and session=\"2023-2024\" and active=1  ORDER BY roll ");
+                return [4 /*yield*/, sqlQueryStatus(query)];
+            case 1:
+                data = _a.sent();
+                if (data.status === true) {
+                    res.status(200).send(data.data);
+                }
+                else {
+                    res.status(404).send('Invalid Request');
+                }
+                return [2 /*return*/];
+        }
+    });
+}); });
+// const EPORT =process.env.PORT||3000;
+// app.listen(EPORT, () => {
+//     console.log("Server is running on port localhost:", EPORT);
+// });
 var http_1 = require("http");
 var socket_io_1 = require("socket.io");
-var httpServer = (0, http_1.createServer)(express());
+var httpServer = (0, http_1.createServer)(app);
 var io = new socket_io_1.Server(httpServer, {
     cors: {
         origin: "*",
@@ -514,7 +566,7 @@ io.on("connection", function (socket) {
         sqlQueryUpdate(insert);
     });
     socket.on('getchat', function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var admno, usersel, _a, seen, unseen, err_8;
+        var admno, usersel, _a, seen, unseen, err_9;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -530,8 +582,8 @@ io.on("connection", function (socket) {
                     socket.emit('getchat', { seen: seen.data, unseen: unseen.data });
                     return [3 /*break*/, 4];
                 case 3:
-                    err_8 = _b.sent();
-                    console.log(err_8);
+                    err_9 = _b.sent();
+                    console.log(err_9);
                     socket.emit('getchat', { seen: null, unseen: null });
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -568,57 +620,87 @@ io.on("connection", function (socket) {
             }
         });
     }); });
+    // {message: string,to: string[],from:string,class:string,sec:string }
     socket.on("admin", function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var _i, _a, admno, insert, insert, _b, _c, _d, i, j;
+        var i, _i, _a, admno, insert, i_1, j, insert, _b, _c, _d;
         return __generator(this, function (_e) {
             switch (_e.label) {
                 case 0:
                     console.log('repsponse :', response);
-                    if (!(Array.isArray(response.to) === true)) return [3 /*break*/, 4];
+                    if (!(Array.isArray(response.to) === true)) return [3 /*break*/, 5];
+                    i = 0;
                     _i = 0, _a = response.to;
                     _e.label = 1;
                 case 1:
                     if (!(_i < _a.length)) return [3 /*break*/, 4];
                     admno = _a[_i];
-                    insert = "INSERT INTO tbl_adminannounce (message,`from`, `to`,class,sec) VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(admno, "','").concat(response.class, "','").concat(response.sec, "');");
+                    insert = "INSERT INTO tbl_adminannounce (message,`from`, `to`,name,fname,mclass,msec,mroll) \n                VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(admno, "','").concat(response.name[i], "','").concat(response.fname[i], "','").concat(response.mclass[i], "','").concat(response.msec[i], "','").concat(response.mroll[i], "');");
                     return [4 /*yield*/, sqlQueryUpdate(insert)];
                 case 2:
                     _e.sent();
+                    i += 1;
                     _e.label = 3;
                 case 3:
                     _i++;
                     return [3 /*break*/, 1];
                 case 4:
-                    if (!(response.class !== '')) return [3 /*break*/, 6];
+                    for (i_1 = 0; i_1 < response.to.length; i_1++) {
+                        for (j = 0; j < dbActive.length; j++) {
+                            if (dbActive[j].admno === response.to[i_1]) {
+                                console.log(j, 'passed ', dbActive[j]);
+                                io.to(dbActive[j].socketid).emit("notice", response.message);
+                                io.emit('getAdminStatus');
+                            }
+                        }
+                    }
+                    return [3 /*break*/, 8];
+                case 5:
+                    if (!(response.class !== '')) return [3 /*break*/, 7];
                     console.log("we entered");
                     insert = "INSERT INTO tbl_adminannounce (message,`from`,`to`,class,sec) VALUES ('".concat(response.message, "','").concat(response.from, "','").concat(response.class, "','").concat(response.class, "','").concat(response.sec, "');");
                     _c = (_b = console).log;
                     _d = ["status :"];
                     return [4 /*yield*/, sqlQueryUpdate(insert)];
-                case 5:
+                case 6:
                     _c.apply(_b, _d.concat([_e.sent()]));
                     io.emit("notice", "check message");
                     io.emit('getAdminStatus');
-                    return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 8];
+                case 7:
                     if (response.to[0] === "all") {
                         console.log('emited :', response.message);
                         io.emit("notice", { "message": response.message });
                         io.emit('getAdminStatus');
                     }
-                    else {
-                        for (i = 0; i < response.to.length; i++) {
-                            for (j = 0; j < dbActive.length; j++) {
-                                if (dbActive[j].admno === response.to[i]) {
-                                    console.log(j, 'passed ', dbActive[j]);
-                                    io.to(dbActive[j].socketid).emit("notice", response.message);
-                                    io.emit('getAdminStatus');
-                                }
-                            }
-                        }
+                    _e.label = 8;
+                case 8:
+                    socket.disconnect();
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    socket.on("getImage", function (response) { return __awaiter(void 0, void 0, void 0, function () {
+        var query, data, image, _i, data_1, x, err_10;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    query = "SELECT admno,name,class,section,roll,fname,ptown,fmob,imagepath FROM tbl_admission WHERE class='".concat(response.class, "' AND session='2023-2024' AND active=1  ORDER BY roll  ASC;");
+                    return [4 /*yield*/, sqlQueryStatus(query)];
+                case 1:
+                    data = (_a.sent()).data;
+                    image = [];
+                    for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
+                        x = data_1[_i];
+                        x.imagepath = getImage(x.imagepath);
+                        image.push(x);
                     }
-                    _e.label = 7;
-                case 7: return [2 /*return*/];
+                    socket.emit("getImage", image);
+                    return [3 /*break*/, 3];
+                case 2:
+                    err_10 = _a.sent();
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); });
