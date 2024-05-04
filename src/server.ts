@@ -557,7 +557,7 @@ io.on("connection", (socket) => {
                 }
                 socket.emit("getImage",image);
             }catch(err){
-
+                socket.emit("getImage",[]);
             }
     })
     socket.on("disconnect", ():void => {
