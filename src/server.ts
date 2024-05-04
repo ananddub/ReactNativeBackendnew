@@ -18,7 +18,19 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.text());
-
+function getImage(img:string):string{
+    try{
+        const imagePath = path.join(
+            __dirname,
+            `uploads/${img}`
+        );
+        const image = fs.readFileSync(imagePath, "base64");
+        return image
+    }catch(e){
+        const image = fs.readFileSync('uploads/profile.png', "base64");
+        return image
+    }
+}
 async function sqlQuery(query: string) {
     const db = mysql.createConnection({
         host: "89.117.188.154",
@@ -85,17 +97,20 @@ async function sqlQueryStatus(query: string) {
                         console.log(err)
                         reject(false);
                     }
-                    console.log(result);
+                    // console.log(result);
                     if (result.length > 0) resolve(result);
-                    else resolve(false);
+                    else {
+                        // console.log(result);
+                        resolve(false)};
                 } catch (err) {
+                    console.log(err)
                     resolve(false);
                 }
             });
         });
         db.end();
         console.log("conection end");
-        console.log("result of sql :", value);
+        // console.log("result of sql :", value);
         if (value == false) return { status: false, data: value };
         else return { status: true, data: value };
     } catch (err) {
@@ -141,8 +156,8 @@ async function sqlQueryUpdate(query: string) {
             });
         });
         db.end();
-        console.log("conection end");
-        console.log("result of sql :", value);
+        // console.log("conection end");
+        // console.log("result of sql :", value);
         return { status: value };
     } catch (err) {
         console.error("Error:", err);
@@ -234,7 +249,10 @@ app.put(
     upload.single("image"),
     async (req: Request, res: Response) => {
         try{
-            console.log("uploaded sucess fully");
+            const { admno, imagename } = req.body;
+            const query =  `UPDATE tbl_admission SET imagepath = "${imagename}" WHERE admno = '${admno}' AND active = 1 AND session = '2023-2024';`;
+            const data = await sqlQueryUpdate(query);
+            console.log("uploaded sucess fully ",req.body);
             res.status(200).send({ status: "success" });
         }catch(err:any){
             res.status(400).send(err.message);
@@ -376,7 +394,7 @@ app.get("/searchstd",async (req: Request, res: Response) => {
     const clas = req.query.class!=="null"?`class="${req.query.class}"`:'';
     const sec = req.query.sec!=="null"?`and section="${req.query.sec}"`:'';
     const roll = req.query.roll!=="null"?`and roll="${req.query.roll}"`:'';
-    const query = `SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ${clas} ${sec} ${roll} and session="2023-2024" and active=1  ORDER BY roll`;
+    const query = `SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ${clas} ${sec} ${roll} and session="2023-2024" and active=1  ORDER BY roll `;
     const data = await sqlQueryStatus(query);
     if(data.status === true){
         res.status(200).send(data.data);
@@ -421,6 +439,8 @@ function removeDup(arr:sdb[],admno:string) {
 
 
 
+
+
 async function getLength(admno:string):Promise<number>{
     const usersel =`SELECT  COUNT(a.messageid) as c FROM tbl_adminannounce a
     LEFT JOIN tbl_stdannounce u ON a.messageid = u.messageid
@@ -430,6 +450,7 @@ async function getLength(admno:string):Promise<number>{
     console.log("length :",unseen.data[0].c)
     return unseen.data[0].c
 }
+
 io.on("connection", (socket) => {
     console.log("A user connected");
     socket.on("register", (response: { admno: string,class:string,sec:string}) => {
@@ -525,7 +546,20 @@ io.on("connection", (socket) => {
         }
         socket.disconnect()
     });
+    socket.on("getImage", async (response:{class:string}) => {
+            try{
+                const query = `SELECT admno,name,class,section,roll,fname,ptown,fmob,imagepath FROM tbl_admission WHERE class='${response.class}' AND session='2023-2024' AND active=1  ORDER BY roll  ASC;`
+                const data:any = (await sqlQueryStatus(query)).data;
+                const image=[]
+                for(let x of data ){
+                    x.imagepath=getImage(x.imagepath);
+                    image.push(x);
+                }
+                socket.emit("getImage",image);
+            }catch(err){
 
+            }
+    })
     socket.on("disconnect", ():void => {
         for (let i = 0; i < dbActive.length; i++) {
             if (dbActive[i].socketid == socket.id) {

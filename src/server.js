@@ -52,6 +52,17 @@ app.use(Cors({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.text());
+function getImage(img) {
+    try {
+        var imagePath = path.join(__dirname, "uploads/".concat(img));
+        var image = fs.readFileSync(imagePath, "base64");
+        return image;
+    }
+    catch (e) {
+        var image = fs.readFileSync('uploads/profile.png', "base64");
+        return image;
+    }
+}
 function sqlQuery(query) {
     return __awaiter(this, void 0, void 0, function () {
         var db, value, err_1;
@@ -142,13 +153,17 @@ function sqlQueryStatus(query) {
                                         console.log(err);
                                         reject(false);
                                     }
-                                    console.log(result);
+                                    // console.log(result);
                                     if (result.length > 0)
                                         resolve(result);
-                                    else
+                                    else {
+                                        // console.log(result);
                                         resolve(false);
+                                    }
+                                    ;
                                 }
                                 catch (err) {
+                                    console.log(err);
                                     resolve(false);
                                 }
                             });
@@ -157,7 +172,7 @@ function sqlQueryStatus(query) {
                     value = _a.sent();
                     db.end();
                     console.log("conection end");
-                    console.log("result of sql :", value);
+                    // console.log("result of sql :", value);
                     if (value == false)
                         return [2 /*return*/, { status: false, data: value }];
                     else
@@ -221,8 +236,8 @@ function sqlQueryUpdate(query) {
                 case 3:
                     value = _a.sent();
                     db.end();
-                    console.log("conection end");
-                    console.log("result of sql :", value);
+                    // console.log("conection end");
+                    // console.log("result of sql :", value);
                     return [2 /*return*/, { status: value }];
                 case 4:
                     err_3 = _a.sent();
@@ -308,19 +323,29 @@ function paymentDetails(admno, session) {
 }); });
 var upload = multer({ storage: storage });
 app.put("/imageupload", upload.single("image"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        try {
-            console.log("uploaded sucess fully");
-            res.status(200).send({ status: "success" });
+    var _a, admno, imagename, query, data, err_4;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, admno = _a.admno, imagename = _a.imagename;
+                query = "UPDATE tbl_admission SET imagepath = \"".concat(imagename, "\" WHERE admno = '").concat(admno, "' AND active = 1 AND session = '2023-2024';");
+                return [4 /*yield*/, sqlQueryUpdate(query)];
+            case 1:
+                data = _b.sent();
+                console.log("uploaded sucess fully ", req.body);
+                res.status(200).send({ status: "success" });
+                return [3 /*break*/, 3];
+            case 2:
+                err_4 = _b.sent();
+                res.status(400).send(err_4.message);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
-        catch (err) {
-            res.status(400).send(err.message);
-        }
-        return [2 /*return*/];
     });
 }); });
 app.put("/profileupdate", upload.single("image"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, admno, imagename, name_1, fname, mname, pdist, update, data, err_4;
+    var _a, admno, imagename, name_1, fname, mname, pdist, update, data, err_5;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -339,15 +364,15 @@ app.put("/profileupdate", upload.single("image"), function (req, res) { return _
                 res.status(200).send(data);
                 return [3 /*break*/, 3];
             case 2:
-                err_4 = _b.sent();
-                res.status(400).send(err_4.message);
+                err_5 = _b.sent();
+                res.status(400).send(err_5.message);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var phone, query, data, image, _i, _a, value, imagePath, img, obj, obj, err_5;
+    var phone, query, data, image, _i, _a, value, imagePath, img, obj, obj, err_6;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -386,7 +411,7 @@ app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void
                 res.status(200).send({ status: data, image: image });
                 return [3 /*break*/, 3];
             case 2:
-                err_5 = _c.sent();
+                err_6 = _c.sent();
                 res.status(400).send({ status: false, image: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -394,7 +419,7 @@ app.get("/phoneVerfication", function (req, res) { return __awaiter(void 0, void
     });
 }); });
 app.get("/paymentDetails", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var admno, data, imagePath, image, err_6;
+    var admno, data, imagePath, image, err_7;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -415,15 +440,15 @@ app.get("/paymentDetails", function (req, res) { return __awaiter(void 0, void 0
                 }
                 return [3 /*break*/, 3];
             case 2:
-                err_6 = _b.sent();
-                res.status(400).send(err_6.message);
+                err_7 = _b.sent();
+                res.status(400).send(err_7.message);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var admno, query, data, imagePath, image, err_7;
+    var admno, query, data, imagePath, image, err_8;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -447,8 +472,8 @@ app.get("/BasicDetails", function (req, res) { return __awaiter(void 0, void 0, 
                 }
                 return [3 /*break*/, 3];
             case 2:
-                err_7 = _b.sent();
-                res.status(400).send(err_7.message);
+                err_8 = _b.sent();
+                res.status(400).send(err_8.message);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
@@ -470,7 +495,7 @@ app.get("/searchstd", function (req, res) { return __awaiter(void 0, void 0, voi
                 clas = req.query.class !== "null" ? "class=\"".concat(req.query.class, "\"") : '';
                 sec = req.query.sec !== "null" ? "and section=\"".concat(req.query.sec, "\"") : '';
                 roll = req.query.roll !== "null" ? "and roll=\"".concat(req.query.roll, "\"") : '';
-                query = "SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ".concat(clas, " ").concat(sec, " ").concat(roll, " and session=\"2023-2024\" and active=1  ORDER BY roll");
+                query = "SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ".concat(clas, " ").concat(sec, " ").concat(roll, " and session=\"2023-2024\" and active=1  ORDER BY roll ");
                 return [4 /*yield*/, sqlQueryStatus(query)];
             case 1:
                 data = _a.sent();
@@ -541,7 +566,7 @@ io.on("connection", function (socket) {
         sqlQueryUpdate(insert);
     });
     socket.on('getchat', function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var admno, usersel, _a, seen, unseen, err_8;
+        var admno, usersel, _a, seen, unseen, err_9;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -557,8 +582,8 @@ io.on("connection", function (socket) {
                     socket.emit('getchat', { seen: seen.data, unseen: unseen.data });
                     return [3 /*break*/, 4];
                 case 3:
-                    err_8 = _b.sent();
-                    console.log(err_8);
+                    err_9 = _b.sent();
+                    console.log(err_9);
                     socket.emit('getchat', { seen: null, unseen: null });
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -651,6 +676,31 @@ io.on("connection", function (socket) {
                 case 8:
                     socket.disconnect();
                     return [2 /*return*/];
+            }
+        });
+    }); });
+    socket.on("getImage", function (response) { return __awaiter(void 0, void 0, void 0, function () {
+        var query, data, image, _i, data_1, x, err_10;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    query = "SELECT admno,name,class,section,roll,fname,ptown,fmob,imagepath FROM tbl_admission WHERE class='".concat(response.class, "' AND session='2023-2024' AND active=1  ORDER BY roll  ASC;");
+                    return [4 /*yield*/, sqlQueryStatus(query)];
+                case 1:
+                    data = (_a.sent()).data;
+                    image = [];
+                    for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
+                        x = data_1[_i];
+                        x.imagepath = getImage(x.imagepath);
+                        image.push(x);
+                    }
+                    socket.emit("getImage", image);
+                    return [3 /*break*/, 3];
+                case 2:
+                    err_10 = _a.sent();
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); });
