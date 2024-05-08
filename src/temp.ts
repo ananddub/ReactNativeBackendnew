@@ -1,14 +1,14 @@
 const mysql = require("mysql");
 async function sqlQuery(query: string) {
     const db = mysql.createConnection({
-        // host: "89.117.188.154",
-        // user: "u932299896_eduware",
-        // password: "Webgen@220310",
-        // database: "u932299896_sisdb",
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "sisdb",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
+        // host: "localhost",
+        // user: "root",
+        // password: "root",
+        // database: "sisdb",
     });
 
     try {
@@ -146,13 +146,13 @@ class StdDuesCal {
         return busnessMonth.indexOf(`${index}`);
     };
     async setAdmDuesAmt() {
-        const tempdata: { duesamt: number }[] = await sqlQuery(
+        const tempdata: { dues: number }[] = await sqlQuery(
             `SELECT duesamt FROM tbl_admissionfeepmt WHERE admno="${
                 this.admno
             }" AND session in("${this.curSession()}","${this.nextSession()}") AND duesstatus='NP';`
         );
-        if (tempdata.length > 0) this.tbl_admduesamt = tempdata[0].duesamt;
-        console.log(tempdata);
+        if (tempdata.length > 0) this.tbl_admduesamt = tempdata[0].dues;
+        console.log("sesion dues fee :", this.tbl_admduesamt);
     }
     async setItemDuesAmt() {
         const query = `SELECT dues
@@ -178,6 +178,7 @@ class StdDuesCal {
         );
         console.log(tempdata);
         if (tempdata.length > 0) this.stdfeemaster = tempdata[0];
+        console.log(tempdata);
     }
     async setLday() {
         const tempdata: { lday: number }[] = await sqlQuery(
@@ -199,6 +200,7 @@ class StdDuesCal {
             }
         }
         this.billdues = data[0].billdues;
+        console.log("billdues :", this.billdues);
     }
     async setTransFee() {
         const query = `SELECT * FROM tbl_transportfee  WHERE admno="${
@@ -278,7 +280,7 @@ class StdDuesCal {
     async getStdDues() {}
 }
 
-const admno = "ASIS232400101";
+const admno = "ASIS192000173";
 const obj = new StdDuesCal(admno);
 console.log(new Date().getDate());
 // (async () => {
@@ -288,5 +290,7 @@ console.log(new Date().getDate());
 //     await obj.setMonthDues();
 
 // })();
-obj.setAdmDuesAmt();
+// obj.setAdmDuesAmt();
 obj.setSessionFee();
+// obj.setItemDuesAmt();
+obj.setMonthFee();

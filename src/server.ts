@@ -18,10 +18,15 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.text());
-const curSession = (): string => {
+const oldSession = (): string => {
     const date = new Date();
     const year = date.getFullYear() - 1;
     return `${year}-${new Date().getFullYear()}`;
+};
+const curSession = (): string => {
+    const date = new Date();
+    const year = date.getFullYear() + 1;
+    return `${new Date().getFullYear()}-${year}`;
 };
 function getImage(img: string): string {
     try {
