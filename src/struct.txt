@@ -1,0 +1,61 @@
+Name                        Table                          Row
+--------------------------------------------------------------------------------------------------------------------------------------------------
+class fee                   ->tbl_stdfeemaster            ->monthfee
+class late fine             ->tbl_monthlyfeesetup         ->fine
+class month detail          ->tbl_monthfee                ->all month record in json format
+
+transport fee               ->tbl_stdfeemaster            ->transportfee       
+transport late fine         ->tbl_monthlyfeesetup         ->tfine
+transport month detail      ->tbl_transportfee            ->all month record in  json format
+
+hostel fee                  ->tbl_stdfeemaster            ->hostelfee
+hostel late fine            ->tbl_monthlyfeesetup         ->hfine :in present time no row of hostelfine in available
+hostel month detail         ->tbl_hostelfee               ->all month record in json format
+
+misc                        ->tbl_stdmonthfeedetail       ->miscfee
+exam                        ->tbl_stdmonthfeedetail       ->examfee
+
+sessionfee                  ->tbl_stdmonthfeedetail       ->sessionfee
+billdues                    ->tbl_monthfee                ->billdues
+lday                        ->tbl_latefinedate            ->lday 
+--------------------------------------------------------------------------------------------------------------
+                                            basic detail
+Addmission number           ->tbl_admission               ->admno
+Name                        ->tbl_admission               ->name
+Class                       ->tbl_admission               ->class
+Roll                        ->tbl_admission               ->roll
+Section                     ->tbl_admission               ->section
+Father Name                 ->tbl_admission               ->fname
+Mobile                      ->tbl_admission               ->fmob
+Whatsapp No                 ->tbl_admission               ->whatsapp
+Transport                   ->tbl_admission               ->transport
+Hostel                      ->tbl_admission               ->hostel
+Gender                      ->tbl_admission               ->gender
+Dob                         ->tbl_admission               ->dob
+Session                     ->tbl_admission               ->session
+
+                            insert tbl
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Name                             Table                         Row               context
+billdues insert                 ->tbl_monthfee                 ->billdues        ->acording to session
+                                ->tbl_stdmonthfeedetail       ->backdues
+
+date insert                     ->tbl_stdmonthfeedetail       ->pdate           ->insert the date  
+
+total month fee insert          ->tbl_stdmonthfeedetail       ->fmonth          ->insert month which month in text format   
+                                ->tbl_stdmonthfeedetail       ->monthfee        ->total monthfee which is selected
+
+total transport fee insert      ->tbl_stdmonthfeedetail       ->tmonth          ->insert transport month which month in text format   
+                                ->tbl_stdmonthfeedetail       ->transfee        ->total monthfee which is selected
+
+total hotel fee insert          ->tbl_stdmonthfeedetail       ->hmonth          ->insert hostel month which month in text format   
+                                ->tbl_stdmonthfeedetail       ->hostelfee       ->total monthfee which is selected
+
+total fee insert                ->tbl_stdmonthfeedetail       ->total
+netamount insert                ->tbl_stdmonthfeedetail       ->netamt
+paid insert                     ->tbl_stdmonthfeedetail       ->paidamt
+discount insert                 ->tbl_stdmonthfeedetail       ->concession
+transport fine insert           ->tbl_stdmonthfeedetail       ->tfine
+hostel fine insert              ->tbl_stdmonthfeedetail       ->hfine
+montth fine                     ->tbl_stdmonthfeedetail       ->fine
+payment mode                    ->tbl_stdmonthfeedetail       ->pmtmode
