@@ -6,7 +6,7 @@ import * as multer from "multer";
 import * as bodyParser from "body-parser";
 import * as fs from "fs";
 import * as path from "path";
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 const app = express();
 app.use(
     Cors({
@@ -411,7 +411,7 @@ app.get("/searchstd", async (req: Request, res: Response) => {
     const query = `SELECT admno,name,class,roll,fname,section FROM tbl_admission where   ${clas} ${sec} ${roll} and session="${curSession()}" and active=1  ORDER BY roll `;
     const data = await sqlQueryStatus(query);
     if (data.status === true) {
-        await pdfHTML(data.data);
+        // await pdfHTML(data.data);
         res.status(200).send(data.data);
     } else {
         res.status(404).send("Invalid Request");
@@ -462,33 +462,33 @@ async function getLength(admno: string): Promise<number> {
 
 io.on("connection", (socket) => {
     console.log("A user connected");
-    socket.on("getPDF", async (response: { class: string; sec: string }) => {
-        try {
-            console.log(response);
-            const query = `SELECT admno,name,class,section,roll,fname,ptown,fmob,imagepath FROM tbl_admission WHERE class='${
-                response.class
-            }' AND section='${
-                response.sec
-            }' AND session='${curSession()}' AND active=1  ORDER BY roll  ASC;`;
-            const data: any = (await sqlQueryStatus(query)).data;
-            if (data.length > 0) {
-                await createPDF(data);
-                // console.log(data)
-                const value = await fs.readFileSync(
-                    path.join(__dirname, "example.pdf"),
-                    "base64"
-                );
-                socket.emit("getPDF", {
-                    name: `${response.class}${response.sec}.pdf`,
-                    pdf: value,
-                });
-            } else {
-                socket.emit("error", "No Data Found");
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    });
+    // socket.on("getPDF", async (response: { class: string; sec: string }) => {
+    //     try {
+    //         console.log(response);
+    //         const query = `SELECT admno,name,class,section,roll,fname,ptown,fmob,imagepath FROM tbl_admission WHERE class='${
+    //             response.class
+    //         }' AND section='${
+    //             response.sec
+    //         }' AND session='${curSession()}' AND active=1  ORDER BY roll  ASC;`;
+    //         const data: any = (await sqlQueryStatus(query)).data;
+    //         if (data.length > 0) {
+    //             await createPDF(data);
+    //             // console.log(data)
+    //             const value = await fs.readFileSync(
+    //                 path.join(__dirname, "example.pdf"),
+    //                 "base64"
+    //             );
+    //             socket.emit("getPDF", {
+    //                 name: `${response.class}${response.sec}.pdf`,
+    //                 pdf: value,
+    //             });
+    //         } else {
+    //             socket.emit("error", "No Data Found");
+    //         }
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+    // });
     socket.on(
         "register",
         (response: { admno: string; class: string; sec: string }) => {
@@ -647,109 +647,109 @@ httpServer.listen(PORT, () => {
     console.log("Socket is running on port localhost:", PORT);
 });
 
-async function stdHTML(item: any) {
-    let image: any = "";
-    try {
-        image = await fs.readFileSync(
-            path.join(__dirname, `uploads/${item.imagepath}`),
-            "base64"
-        );
-    } catch (e) {
-        image = await fs.readFileSync(
-            path.join(__dirname, "uploads/profile.png"),
-            "base64"
-        );
-    }
-    const str = `<div id="card">
-                <img src='data:image/jpeg;base64,${image}' 
-                    width="120px" 
-                    height="120px"   
-                class="bg-gray-300 rounded-full"
-                >
-            <div id="details"> 
-                <div class="dm">
-                    <p class="dom">Name</p>
-                    <p class="nom">${item.name}</p>
-                </div>
-                <div class="dm">
-                    <p class="dom">class </p>
-                    <p class="nom">${item.class},${item.section},${item.roll}</p>
-                </div>
-                <div class="dm">
-                    <p class="dom">F.Name</p>
-                    <p class="nom">${item.fname}</p>
-                </div>
-                <div class="dm">
-                    <p class="dom">Address</p>
-                    <p class="nom">${item.ptown}</p>
-                </div>
-                <div class="dm">
-                    <p class="dom">Mob</p>
-                    <p class="nom">${item.fmob}</p>
-                </div>
-            </div>
-        </div>`;
-    return str;
-}
-async function pdfHTML(item: any) {
-    let str = "";
-    for (let element of item) {
-        str += await stdHTML(element);
-    }
-    console.log(str);
-    return `<html>
-                <style>
-                    #card{
-                        display: flex;
-                        flex: 1;
-                        flex-direction: row;
-                        outline-width: 2px;
-                        outline-color: gray;
-                        padding: 8px;
-                        gap: 10px;
-                        height: 300px;
-                        width: 500px;
-                        outline-style: solid;
-                        border-radius: 20px;
-                    }
-                    .dm{
-                        display: flex;
-                        flex-direction: row;
-                        gap: 10px;
-                        height: 30px;
-                        color:#2B2B2B ;
-                    }
-                    #details{
-                        display: flex;
-                        flex-direction: column;
-                        margin
-                    }
-                    #mcontainer{
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                        align-items: center;
-                        color:#2B2B2B ;
-                    }
-                
-                    img{
-                        border-radius: 100%;
-                    }
-                </style>
-                <body>
-                    <div id="mcontainer">
-                        <h1 style="color: #2B2B2B;" >Class ${item[0].class}  Sec ${item[0].section}</h1>
-                        ${str}
-                </div>
-                </body>
-            </html>`;
-}
-async function createPDF(item: any) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    const imagepath = path.join(__dirname, "uploads/profile.png");
-    const image = await fs.readFileSync(imagepath, "base64");
-    await page.setContent(await pdfHTML(item));
-    await page.pdf({ path: "example.pdf", format: "A4" });
-    await browser.close();
-}
+// async function stdHTML(item: any) {
+//     let image: any = "";
+//     try {
+//         image = await fs.readFileSync(
+//             path.join(__dirname, `uploads/${item.imagepath}`),
+//             "base64"
+//         );
+//     } catch (e) {
+//         image = await fs.readFileSync(
+//             path.join(__dirname, "uploads/profile.png"),
+//             "base64"
+//         );
+//     }
+//     const str = `<div id="card">
+//                 <img src='data:image/jpeg;base64,${image}'
+//                     width="120px"
+//                     height="120px"
+//                 class="bg-gray-300 rounded-full"
+//                 >
+//             <div id="details">
+//                 <div class="dm">
+//                     <p class="dom">Name</p>
+//                     <p class="nom">${item.name}</p>
+//                 </div>
+//                 <div class="dm">
+//                     <p class="dom">class </p>
+//                     <p class="nom">${item.class},${item.section},${item.roll}</p>
+//                 </div>
+//                 <div class="dm">
+//                     <p class="dom">F.Name</p>
+//                     <p class="nom">${item.fname}</p>
+//                 </div>
+//                 <div class="dm">
+//                     <p class="dom">Address</p>
+//                     <p class="nom">${item.ptown}</p>
+//                 </div>
+//                 <div class="dm">
+//                     <p class="dom">Mob</p>
+//                     <p class="nom">${item.fmob}</p>
+//                 </div>
+//             </div>
+//         </div>`;
+//     return str;
+// }
+// async function pdfHTML(item: any) {
+//     let str = "";
+//     for (let element of item) {
+//         str += await stdHTML(element);
+//     }
+//     console.log(str);
+//     return `<html>
+//                 <style>
+//                     #card{
+//                         display: flex;
+//                         flex: 1;
+//                         flex-direction: row;
+//                         outline-width: 2px;
+//                         outline-color: gray;
+//                         padding: 8px;
+//                         gap: 10px;
+//                         height: 300px;
+//                         width: 500px;
+//                         outline-style: solid;
+//                         border-radius: 20px;
+//                     }
+//                     .dm{
+//                         display: flex;
+//                         flex-direction: row;
+//                         gap: 10px;
+//                         height: 30px;
+//                         color:#2B2B2B ;
+//                     }
+//                     #details{
+//                         display: flex;
+//                         flex-direction: column;
+//                         margin
+//                     }
+//                     #mcontainer{
+//                         display: flex;
+//                         flex-direction: column;
+//                         gap: 10px;
+//                         align-items: center;
+//                         color:#2B2B2B ;
+//                     }
+
+//                     img{
+//                         border-radius: 100%;
+//                     }
+//                 </style>
+//                 <body>
+//                     <div id="mcontainer">
+//                         <h1 style="color: #2B2B2B;" >Class ${item[0].class}  Sec ${item[0].section}</h1>
+//                         ${str}
+//                 </div>
+//                 </body>
+//             </html>`;
+// }
+// async function createPDF(item: any) {
+//     const browser = await puppeteer.launch();
+//     const page = await browser.newPage();
+//     const imagepath = path.join(__dirname, "uploads/profile.png");
+//     const image = await fs.readFileSync(imagepath, "base64");
+//     await page.setContent(await pdfHTML(item));
+//     await page.pdf({ path: "example.pdf", format: "A4" });
+//     await browser.close();
+// }
