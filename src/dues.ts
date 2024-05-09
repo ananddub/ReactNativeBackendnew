@@ -71,6 +71,8 @@ interface stdFeeMaster {
     transportfee: number;
     hostelfee: number;
     session: string;
+    hostel: string;
+    transport: string;
 }
 interface Dues {
     name: string;
@@ -81,6 +83,8 @@ export class StdDuesCal {
     private hostelfee: any[] = [];
     private monthfee: any[] = [];
     private monthdues: Dues[] = [];
+    private transport: string = "NO";
+    private hostel: string = "NO";
     private basicdetail: {
         name: string;
         fname: string;
@@ -89,6 +93,8 @@ export class StdDuesCal {
         roll: string;
         section: string;
         session: string;
+        hostel: string;
+        transport: string;
     } = {
         name: "",
         fname: "",
@@ -97,6 +103,8 @@ export class StdDuesCal {
         roll: "",
         section: "",
         session: "",
+        hostel: "",
+        transport: "",
     };
     private transdues: Dues[] = [];
     private hosteldues: Dues[] = [];
@@ -119,6 +127,8 @@ export class StdDuesCal {
         transportfee: 0,
         hostelfee: 0,
         session: "",
+        hostel: "",
+        transport: "",
     };
     private billdues = 0;
     constructor(private admno: string) {}
@@ -184,12 +194,12 @@ export class StdDuesCal {
         return busnessMonth.indexOf(`${index}`);
     };
     public async setAdmDuesAmt() {
-        const tempdata: { dues: number }[] = await sqlQuery(
+        const tempdata: { duesamt: number }[] = await sqlQuery(
             `SELECT duesamt FROM tbl_admissionfeepmt WHERE admno="${
                 this.admno
             }" AND session in("${this.curSession()}","${this.nextSession()}") AND duesstatus='NP';`
         );
-        if (tempdata.length > 0) this.tbl_admduesamt = tempdata[0].dues;
+        if (tempdata.length > 0) this.tbl_admduesamt = tempdata[0].duesamt;
     }
     public async setItemDuesAmt() {
         const query = `SELECT dues
@@ -198,7 +208,7 @@ export class StdDuesCal {
         AND srno = (SELECT MAX(srno) FROM tbl_itemreceipt WHERE admno="${this.admno}");`;
         const tempdata: any = await sqlQuery(query);
         if (tempdata.length > 0) this.tbl_itemduesamt = tempdata[0].dues;
-        console.log(query, [tempdata]);
+        // console.log(query, [tempdata]);
     }
     public async setSessionFee() {
         const tempdata: any = await sqlQuery(
@@ -214,24 +224,16 @@ export class StdDuesCal {
                 this.admno
             }" AND session="${this.curSession()}";`
         );
-        console.log(tempdata);
+        // console.log(tempdata);
         if (tempdata.length > 0) this.stdfeemaster = tempdata[0];
-        console.log(tempdata);
+        // console.log(tempdata);
     }
     public async setBasicDetail() {
-        const q = `select name,fname,fmob,class,roll,section,session from tbl_admission where admno = "${
+        const q = `select admno,name,fname,fmob,class,roll,section,session,transport,hostel from tbl_admission where admno = "${
             this.admno
         }" and session = "${this.curSession()}" and active=1;`;
 
-        const classs: {
-            name: string;
-            fname: string;
-            fmob: string;
-            class: string;
-            roll: string;
-            section: string;
-            session: string;
-        }[] = await sqlQuery(q);
+        const classs: any[] = await sqlQuery(q);
         console.log(classs);
         this.basicdetail = classs[0];
     }
@@ -247,7 +249,7 @@ export class StdDuesCal {
         }
         this.fine.transfine = result.transfine;
         this.fine.fine = result.fine;
-        console.log(this.fine);
+        // console.log(this.fine);
     }
 
     public async setLday() {
@@ -257,11 +259,12 @@ export class StdDuesCal {
         if (tempdata.length > 0) this.lday = tempdata[0].lday;
     }
     public async setMonthFee() {
+        this.monthfee = [];
         const query = `SELECT * FROM tbl_monthfee  WHERE admno="${
             this.admno
         }" AND session="${this.curSession()}";`;
         const data: FeeStructure[] = await sqlQuery(query);
-        console.log("setMontFee :", data, this.curSession());
+        // console.log("setMontFee :", data, this.curSession());
         if (data.length > 0) {
             for (let [keys, value] of Object.entries(data[0])) {
                 if (keys.length < 5) {
@@ -273,99 +276,117 @@ export class StdDuesCal {
         }
     }
     public async setTransFee() {
+        this.transfee = [];
         const query = `SELECT * FROM tbl_transportfee  WHERE admno="${
             this.admno
         }" AND session="${this.curSession()}";`;
-        const data: FeeStructure[] = await sqlQuery(query);
-        if (data.length > 0)
+        const data: any[] = await sqlQuery(query);
+
+        if (data.length > 0 && this.basicdetail.transport === "YES") {
             for (let [keys, value] of Object.entries(data[0])) {
                 if (keys.length < 5) {
                     if (keys === "dece") keys = "dec";
                     this.transfee.push([keys, value]);
                 }
-            }
-    }
-    public async setHostelFee() {
-        const query = `SELECT * FROM tbl_hostelfee  WHERE admno="${
-            this.admno
-        }" AND session="${this.curSession()}";`;
-        const data: FeeStructure[] = await sqlQuery(query);
-        if (data.length > 0)
-            for (let [keys, value] of Object.entries(data[0])) {
-                if (keys.length < 5) {
-                    if (keys === "dece") keys = "dec";
-                    this.transfee.push([keys, value]);
-                }
-            }
-    }
-    public setTransDues() {
-        const day = new Date().getDate();
-        for (let v of this.transfee) {
-            if (
-                (this.getMonthIndex(v[0]) < this.curMonthIndex() &&
-                    v[1] === 0) ||
-                (this.getMonthIndex(v[0]) == this.curMonthIndex() &&
-                    v[1] === 0 &&
-                    day > this.lday)
-            ) {
-                this.transdues.push({
-                    name: v[0],
-                    fees: this.stdfeemaster.transportfee,
-                });
             }
         }
     }
-    public setHostelDues() {
+    public async setHostelFee() {
+        this.hostelfee = [];
+        const query = `SELECT * FROM tbl_hostelfee  WHERE admno="${
+            this.admno
+        }" AND session="${this.curSession()}";`;
+        const data: any[] = await sqlQuery(query);
+        if (data.length > 0 && this.basicdetail.hostel === "YES") {
+            for (let [keys, value] of Object.entries(data[0])) {
+                if (keys.length < 5) {
+                    if (keys === "dece") keys = "dec";
+                    this.hostelfee.push([keys, value]);
+                }
+            }
+        }
+    }
+    public setTransDues() {
+        this.transdues = [];
         const day = new Date().getDate();
-        for (let v of this.hostelfee) {
-            if (
-                (this.getMonthIndex(v[0]) < this.curMonthIndex() &&
-                    v[1] === 0) ||
-                (this.getMonthIndex(v[0]) == this.curMonthIndex() &&
-                    v[1] === 0 &&
-                    day > this.lday)
-            ) {
-                this.hosteldues.push({
-                    name: v[0],
-                    fees: this.stdfeemaster.hostelfee,
-                });
+        if (this.basicdetail.transport === "YES") {
+            for (let v of this.transfee) {
+                if (
+                    this.getMonthIndex(v[0]) <= this.curMonthIndex() &&
+                    v[1] === 0
+                ) {
+                    let fine =
+                        day < this.lday &&
+                        this.getMonthIndex(v[0]) === this.curMonthIndex()
+                            ? 0
+                            : this.fine.transfine;
+                    this.transdues.push({
+                        name: v[0],
+                        fees: this.stdfeemaster.transportfee + fine,
+                    });
+                }
+            }
+        }
+
+        // console.log("transDues :", this.transdues);
+    }
+    public setHostelDues() {
+        this.hosteldues = [];
+        const day = new Date().getDate();
+        if (this.basicdetail.hostel === "YES") {
+            for (let v of this.hostelfee) {
+                if (
+                    this.getMonthIndex(v[0]) <= this.curMonthIndex() &&
+                    v[1] === 0
+                ) {
+                    let fine =
+                        day < this.lday &&
+                        this.getMonthIndex(v[0]) === this.curMonthIndex()
+                            ? 0
+                            : this.fine.hostelfine;
+                    this.hosteldues.push({
+                        name: v[0],
+                        fees: this.stdfeemaster.hostelfee + fine,
+                    });
+                }
             }
         }
     }
     public setMonthDues() {
         const day = new Date().getDate();
+        this.monthdues = [];
         for (let v of this.monthfee) {
             if (
-                (this.getMonthIndex(v[0]) < this.curMonthIndex() &&
-                    v[1] === 0) ||
-                (this.getMonthIndex(v[0]) == this.curMonthIndex() &&
-                    v[1] === 0 &&
-                    day > this.lday)
+                this.getMonthIndex(v[0]) <= this.curMonthIndex() &&
+                v[1] === 0
             ) {
+                let fine =
+                    day < this.lday &&
+                    this.getMonthIndex(v[0]) === this.curMonthIndex()
+                        ? 0
+                        : this.fine.fine;
                 this.monthdues.push({
                     name: v[0],
-                    fees: this.stdfeemaster.monthfee,
+                    fees: this.stdfeemaster.monthfee + fine,
                 });
             }
         }
     }
     public async getAllDues() {
-        await Promise.all([
-            await this.setBasicDetail(),
-            await this.setLday(),
-            await this.setStdFee(),
-            await this.setFine(),
-            await this.setMonthFee(),
-            await this.setTransFee(),
-            await this.setHostelFee(),
-            await this.setAdmDuesAmt(),
-            await this.setItemDuesAmt(),
-            await this.setSessionFee(),
-        ]);
-
-        this.setTransDues();
-        this.setHostelDues();
+        await this.setBasicDetail();
+        await this.setLday();
+        await this.setStdFee();
+        await this.setFine();
+        await this.setMonthFee();
+        if (this.basicdetail.transport === "YES") await this.setTransFee();
+        if (this.basicdetail.hostel === "YES") await this.setHostelFee();
+        await this.setAdmDuesAmt();
+        await this.setItemDuesAmt();
+        await this.setSessionFee();
         this.setMonthDues();
+        if (this.basicdetail.transport === "YES") this.setTransDues();
+        if (this.basicdetail.hostel === "YES") this.setHostelDues();
+        // console.log("hostel :", this.hosteldues);
         const obj = {
             admno: this.admno,
             stdfeemaster: this.stdfeemaster,
@@ -384,13 +405,13 @@ export class StdDuesCal {
             },
             fee: {
                 month: this.monthfee === undefined ? 0 : this.monthfee,
-                hostel: this.hostelfee === undefined ? 0 : this.hostelfee,
                 trans: this.transfee === undefined ? 0 : this.transfee,
+                hostel: this.hostelfee === undefined ? 0 : this.hostelfee,
             },
             dues: {
                 month: this.monthdues === undefined ? [] : this.monthdues,
-                hostel: this.transdues === undefined ? [] : this.transdues,
-                trans: this.hosteldues === undefined ? [] : this.hosteldues,
+                trans: this.transdues === undefined ? [] : this.transdues,
+                hostel: this.hosteldues === undefined ? [] : this.hosteldues,
             },
             amt: {
                 amount:
@@ -406,17 +427,27 @@ export class StdDuesCal {
         // const tfine = obj.fine.fine + obj.fine.transfine + obj.fine.hostelfine;
         const amt = obj.amt.amount + obj.amt.item + obj.amt.session;
         const mdues = this.monthdues.reduce((a: any, b: any) => {
-            return a + b.fees + obj.fine.fine;
+            return a + b.fees;
         }, 0);
+
         const tdues = this.transdues.reduce((a: any, b: any) => {
-            return a + b.fees + obj.fine.transfine;
+            return this.basicdetail.transport === "YES" ? a + b.fees : 0;
         }, 0);
         const hdues = this.hosteldues.reduce((a: any, b: any) => {
-            return a + b.fees + obj.fine.hostelfine;
+            return this.basicdetail.hostel === "YES" ? a + b.fees : 0;
         }, 0);
         const total = mdues + tdues + hdues + amt;
         obj.total = total;
-        console.log(total, obj.total, [mdues, tdues, hdues, amt]);
+        if (parseInt(obj.basic.roll) === 1)
+            console.log([
+                obj,
+                obj.dues.month,
+                obj.dues.trans,
+                obj.dues.hostel,
+                this.transfee,
+                this.monthfee,
+                this.hostelfee,
+            ]);
         return obj;
     }
 }

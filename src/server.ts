@@ -55,14 +55,14 @@ async function sqlQuerys(query: string) {
                 resolve(result);
             });
         });
-        db.end();
         console.log("conection end");
         return value;
     } catch (err) {
         console.error("Error:", err);
-        db.end();
         console.log("conection end");
         return [];
+    } finally {
+        db.end();
     }
 }
 
@@ -455,7 +455,7 @@ app.get("/dues", async (req: Request, res: Response) => {
     const section = req.query.section;
     console.log(req.query);
 
-    const query = `select admno from tbl_admission where class="${clas}" AND section="${section}" AND session="${curSession()}" AND active=1;`;
+    const query = `select admno from tbl_admission where class="${clas}" AND section="${section}" AND session="${curSession()}" AND active=1 ORDER BY roll ASC;`;
     const data = await sqlQuerys(query);
     const arrays = await Promise.all(
         data.map((val: any) => new StdDuesCal(val.admno).getAllDues())
