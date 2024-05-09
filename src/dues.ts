@@ -420,3 +420,8 @@ export class StdDuesCal {
         return obj;
     }
 }
+// user: "u932299896_eduwareApp",
+// password: "Webgen@220310
+// database: "u932299896_sisdbApp",
+// ALTER USER 'u932299896_eduwareApp'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Webgen@220310';
+// ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
