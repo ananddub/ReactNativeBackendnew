@@ -18,16 +18,54 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.text());
-const oldSession = (): string => {
+const nextSession = (): string => {
     const date = new Date();
-    const year = date.getFullYear() - 1;
-    return `${year}-${new Date().getFullYear()}`;
+    const year = date.getFullYear() + 1;
+    return `${year}-${new Date().getFullYear() + 2}`;
 };
 const curSession = (): string => {
     const date = new Date();
     const year = date.getFullYear() + 1;
     return `${new Date().getFullYear()}-${year}`;
 };
+async function sqlQuerys(query: string) {
+    const db = mysql.createConnection({
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
+        // host: "localhost",
+        // user: "root",
+        // password: "root",
+        // database: "sisdb",
+    });
+
+    try {
+        await new Promise((resolve, reject) => {
+            db.connect((err: any) => {
+                if (err) reject(err);
+                resolve("done");
+                console.log("Connected to database");
+            });
+        });
+
+        const value: [] = await new Promise((resolve, reject) => {
+            db.query(query, (err: any, result: any) => {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+        db.end();
+        console.log("conection end");
+        return value;
+    } catch (err) {
+        console.error("Error:", err);
+        db.end();
+        console.log("conection end");
+        return [];
+    }
+}
+
 function getImage(img: string): string {
     try {
         const imagePath = path.join(__dirname, `uploads/${img}`);
@@ -259,8 +297,6 @@ app.put(
     async (req: Request, res: Response) => {
         try {
             const { admno, imagename } = req.body;
-            const query = `UPDATE tbl_admission SET imagepath = "${imagename}" WHERE admno = '${admno}' AND active = 1 AND session = '${curSession()}';`;
-            const data = await sqlQueryUpdate(query);
             console.log("uploaded sucess fully ", req.body);
             res.status(200).send({ status: "success" });
         } catch (err: any) {
@@ -280,11 +316,6 @@ app.put(
                         fname = '${fname}',
                         mname = '${mname}', 
                         pdist = '${pdist}'
-                        ${
-                            imagename !== undefined
-                                ? `, imagepath = '${imagename}'`
-                                : ""
-                        }
                         WHERE admno = '${admno}' AND active = 1 AND session = '${curSession()}';`;
 
             const data = await sqlQueryUpdate(update);
@@ -305,6 +336,7 @@ app.put(
 );
 app.get("/phoneVerfication", async (req: Request, res: Response) => {
     try {
+        console.log("phoneVerfication called");
         const phone = req.query?.phone;
         const query = `SELECT * FROM tbl_admission where session="${curSession()}" and  active=1 and fmob='${phone}'`;
         const data: {
@@ -321,7 +353,7 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                 try {
                     const imagePath = path.join(
                         __dirname,
-                        `uploads/${value.imagepath}`
+                        `uploads/${value.admno}.jpg`
                     );
                     const img = fs.readFileSync(imagePath, "base64");
                     const obj: {
@@ -329,8 +361,8 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                         name: string;
                         data: string;
                     } = {
-                        type: "image/jpeg",
-                        name: `${value.imagepath}`,
+                        type: "image/jpg",
+                        name: `${value.admno}.jpg`,
                         data: img,
                     };
                     console.log("sucess");
@@ -418,7 +450,22 @@ app.get("/searchstd", async (req: Request, res: Response) => {
     }
 });
 
-app.get("/getPDF", async (req: Request, res: Response) => {});
+app.get("/dues", async (req: Request, res: Response) => {
+    const clas = req.query.class;
+    const section = req.query.section;
+    console.log(req.query);
+
+    const query = `select admno from tbl_admission where class="${clas}" AND section="${section}" AND session="${curSession()}" AND active=1;`;
+    const data = await sqlQuerys(query);
+    const arrays = await Promise.all(
+        data.map((val: any) => new StdDuesCal(val.admno).getAllDues())
+    );
+    const marray = arrays.filter((x) => x.total > 0);
+    console.log("send sucess fully");
+    res.status(200).send({ data: marray });
+});
+
+// app.get("/getPDF", async (req: Request, res: Response) => {});
 // const EPORT =process.env.PORT||3000;
 // app.listen(EPORT, () => {
 //     console.log("Server is running on port localhost:", EPORT);
@@ -426,6 +473,7 @@ app.get("/getPDF", async (req: Request, res: Response) => {});
 
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
+import { StdDuesCal } from "./dues";
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
@@ -623,7 +671,7 @@ io.on("connection", (socket) => {
             const data: any = (await sqlQueryStatus(query)).data;
             const image = [];
             for (let x of data) {
-                x.imagepath = getImage(x.imagepath);
+                x.imagepath = getImage(`${x.admno}.jpg`);
                 image.push(x);
             }
             socket.emit("getImage", image);
