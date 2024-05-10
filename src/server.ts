@@ -373,7 +373,7 @@ app.get("/phoneVerfication", async (req: Request, res: Response) => {
                         name: "",
                         data: "",
                     };
-                    C = image.push(obj);
+                    image.push(obj);
                 }
             }
         // console.log(data);
