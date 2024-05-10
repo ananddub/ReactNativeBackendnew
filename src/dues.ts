@@ -438,7 +438,7 @@ export class StdDuesCal {
         }, 0);
         const total = mdues + tdues + hdues + amt;
         obj.total = total;
-        if (parseInt(obj.basic.roll) === 1)
+        if (parseInt(obj.basic.roll) === 5)
             console.log([
                 obj,
                 obj.dues.month,

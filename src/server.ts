@@ -30,10 +30,10 @@ const curSession = (): string => {
 };
 async function sqlQuerys(query: string) {
     const db = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "u932299896_sisdbApp",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
         // host: "localhost",
         // user: "root",
         // password: "root",
@@ -78,10 +78,10 @@ function getImage(img: string): string {
 }
 async function sqlQuery(query: string) {
     const db = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "u932299896_sisdbApp",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
         // host: "89.117.188.154",
         // user: "u932299896_eduware",
         // password: "Webgen@220310",
@@ -115,10 +115,10 @@ async function sqlQuery(query: string) {
 }
 async function sqlQueryStatus(query: string) {
     const db = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "u932299896_sisdbApp",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
         // host: "localhost",
         // user: "root",
         // password: "root",
@@ -170,10 +170,10 @@ async function sqlQueryStatus(query: string) {
 
 async function sqlQueryUpdate(query: string) {
     const db = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "u932299896_sisdbApp",
+        host: "89.117.188.154",
+        user: "u932299896_eduware",
+        password: "Webgen@220310",
+        database: "u932299896_sisdb",
         // host: "89.117.188.154",
         // user: "u932299896_eduware",
         // password: "Webgen@220310",
@@ -456,13 +456,13 @@ app.get("/dues", async (req: Request, res: Response) => {
     console.log(req.query);
 
     const query = `select admno from tbl_admission where class="${clas}" AND section="${section}" AND session="${curSession()}" AND active=1 ORDER BY roll ASC;`;
-    const data = await sqlQuerys(query);
-    const arrays = await Promise.all(
-        data.map((val: any) => new StdDuesCal(val.admno).getAllDues())
-    );
-    const marray = arrays.filter((x) => x.total > 0);
-    console.log("send sucess fully");
-    res.status(200).send({ data: marray });
+    // const data = await sqlQuerys(query);
+    // const arrays = await Promise.all(
+    //     data.map((val: any) => new StdDuesCal(val.admno).getAllDues())
+    // );
+    // const marray = arrays.filter((x) => x.total > 0);
+    // console.log("send sucess fully");
+    res.status(200).send({ data: "not yet implemented" });
 });
 
 // app.get("/getPDF", async (req: Request, res: Response) => {});
